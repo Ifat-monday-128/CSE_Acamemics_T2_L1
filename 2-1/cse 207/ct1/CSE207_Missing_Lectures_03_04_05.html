@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CSE 207 — Missing Lectures 03, 04 and 05</title>
+<style>
+@page { size:A4; margin:14mm 14mm 16mm; @bottom-center { content:"CSE 207 • Missing Lectures 03–05  |  " counter(page); font:8pt Arial; color:#64748b; } }
+*{box-sizing:border-box}
+body{margin:0;color:#172033;font:10.2pt/1.42 "Segoe UI",Arial,sans-serif}
+h1,h2,h3,h4{font-family:Georgia,serif;color:#12355b;line-height:1.14;margin:.45em 0 .25em}
+h1{font-size:34pt} h2{font-size:20pt;border-bottom:2px solid #138496;padding-bottom:4px}
+h3{font-size:14.5pt;color:#126576} h4{font-size:11.5pt}
+p{margin:.28em 0 .55em} ul,ol{margin:.25em 0 .65em;padding-left:20px} li{margin:.12em 0}
+.cover{height:267mm;margin:-14mm -14mm -16mm;padding:20mm;background:linear-gradient(145deg,#092842 0 54%,#087b83 54%);color:#fff;display:flex;flex-direction:column;justify-content:center;page-break-after:always}
+.cover h1{color:#fff}.kicker{color:#8df0df;text-transform:uppercase;letter-spacing:3px;font-weight:800}.subtitle{font-size:17pt;max-width:145mm}.coverbox{margin-top:20mm;padding:10px 14px;border-left:5px solid #ffd166;background:#ffffff18}.foot{margin-top:auto;color:#d9f3f0}
+.page{page-break-before:always}.avoid{break-inside:avoid}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.box{border-left:5px solid #148697;background:#eaf8f8;padding:8px 11px;margin:7px 0;break-inside:avoid}.tip{border-color:#c99b17;background:#fff9dc}.warn{border-color:#df633c;background:#fff1e9}.proof{border-color:#7657a8;background:#f5f0ff}.exam{border-color:#16834a;background:#edf9f1}
+.label{display:block;font-size:7.7pt;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;color:#0b6672;margin-bottom:2px}
+table{width:100%;border-collapse:collapse;margin:6px 0 10px;font-size:8.8pt;break-inside:avoid}th{background:#12355b;color:#fff;text-align:left}th,td{padding:5px 6px;border:1px solid #cbd5e1;vertical-align:top}tr:nth-child(even) td{background:#f6f9fb}
+.tight th,.tight td{padding:3px 5px}.algo{white-space:pre-wrap;background:#0d223b;color:#e9f6ff;border-radius:5px;padding:9px 12px;font:8.8pt/1.38 Consolas,monospace;break-inside:avoid}.algo b{color:#78e0d3}
+.formula{text-align:center;font:13pt Georgia,serif;background:#f3f7fa;border:1px solid #cbd5e1;padding:7px;margin:6px 0;break-inside:avoid}
+.fig{border:1px solid #ccd7e1;border-radius:5px;background:white;padding:6px;margin:7px 0;text-align:center;break-inside:avoid}.caption{font-size:8.2pt;color:#526579}.small{font-size:8.4pt}.muted{color:#64748b}.pill{display:inline-block;padding:2px 7px;border-radius:12px;background:#d8f0ed;color:#075d59;font-weight:700;font-size:8pt}
+.lecture{display:inline-block;background:#12355b;color:#fff;border-radius:16px;padding:4px 10px;font-weight:800;letter-spacing:.7px}.check li{list-style:"□  "}.answer{border:1px solid #94a3b8;padding:7px 9px;margin:6px 0;break-inside:avoid}.answer b:first-child{color:#145c69}.mark{float:right;color:#16834a;font-weight:800}
+.node{fill:#fff;stroke:#12355b;stroke-width:2}.edge{stroke:#718096;stroke-width:2}.chosen{stroke:#0e9488;stroke-width:4}.bad{stroke:#df4f42;stroke-width:4}.wt{font:700 12px Arial;fill:#263548}.nt{font:700 13px Arial;fill:#12355b}
+.simgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.frame{border:2px solid #c6d4df;border-radius:7px;padding:5px;background:#fff;break-inside:avoid}.frame h4{margin:1px 4px 4px;color:#0b6672}.frame.current{border-color:#0e9488;background:#f1fbfa}.state{font:8.1pt Consolas,monospace;background:#eef4f7;padding:4px 6px;border-radius:4px;margin-top:3px}.legend{display:flex;gap:15px;justify-content:center;font-size:8pt;color:#526579;margin:4px}.dot{display:inline-block;width:11px;height:11px;border-radius:50%;vertical-align:-1px;margin-right:3px;border:2px solid #12355b}.dot.in{background:#90e1d6}.dot.active{background:#ffd166}.simnote{font-size:8.2pt;padding:4px 6px;background:#fff9dc;border-left:3px solid #c99b17}
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="kicker">CSE 207 • CT-1 Recovery Notes</div>
+  <h1>The Missing Bridge</h1>
+  <div class="subtitle">Lectures 03, 04 &amp; 05: Prim’s MST, shortest-path foundations, and Bellman–Ford</div>
+  <div class="coverbox"><b>Professor-mode promise:</b> every algorithm is tied to its invariant, every proof has an exam-ready skeleton, and every dry run shows exactly what must be written for method marks.</div>
+  <div class="foot">Reconstructed from the progression of Lectures 01, 02, 06, 07 and 08 • Aligned to CLRS, 3rd ed., Chapters 23–24</div>
+</section>
+
+<section>
+<h2>What was actually missing?</h2>
+<table>
+<tr><th>Evidence from available material</th><th>Consequence</th></tr>
+<tr><td>Lecture 02 finishes Kruskal and announces the “second strategy.”</td><td>Lecture 03 must begin with <b>Prim’s algorithm</b>.</td></tr>
+<tr><td>Lecture 06 opens with a Bellman–Ford simulation and then proves it.</td><td>Lectures 04–05 must introduce <b>SSSP, relaxation, and Bellman–Ford</b>.</td></tr>
+<tr><td>Lecture 07 starts with DAG shortest paths; Lecture 08 covers Dijkstra.</td><td>DAG-SP and Dijkstra are later material, not the main missing bridge.</td></tr>
+</table>
+<div class="grid3">
+ <div class="box"><span class="label">Lecture 03</span>Prim; safe edge; key and parent; priority queue; correctness; complexity; Prim vs Kruskal.</div>
+ <div class="box tip"><span class="label">Lecture 04</span>Shortest-path meaning; negative cycles; optimal substructure; initialization; relaxation; core properties.</div>
+ <div class="box exam"><span class="label">Lecture 05</span>Bellman–Ford; |V|−1 passes; dry run; reachable negative-cycle test; correctness; complexity.</div>
+</div>
+<h3>The two questions that organize everything</h3>
+<div class="formula"><b>MST:</b> Which cheapest edge safely grows a tree? &nbsp;&nbsp;|&nbsp;&nbsp; <b>SSSP:</b> Can this edge improve a distance estimate?</div>
+<div class="box warn"><b>Never merge these ideas.</b> Prim stores the cheapest <em>single edge</em> attaching a vertex to the tree. Shortest-path algorithms store the cheapest <em>total path weight from source s</em>.</div>
+<h3>Notation used throughout</h3>
+<table class="tight"><tr><th>Symbol</th><th>Meaning</th><th>Symbol</th><th>Meaning</th></tr>
+<tr><td>G=(V,E)</td><td>graph</td><td>w(u,v)</td><td>edge weight</td></tr>
+<tr><td>key[v]</td><td>best attachment edge known in Prim</td><td>π[v]</td><td>parent / predecessor</td></tr>
+<tr><td>δ(s,v)</td><td>true shortest-path weight</td><td>d[v]</td><td>current upper-bound estimate</td></tr></table>
+<div class="box tip"><b>Study order:</b> understand the pictures → reproduce pseudocode → trace tables → memorize proof skeletons → answer the practice set without looking.</div>
+</section>
+
+<section class="page">
+<span class="lecture">LECTURE 03</span>
+<h2>Prim’s algorithm: grow one connected tree</h2>
+<p>Prim begins at an arbitrary root r. At every step it chooses the minimum-weight edge crossing from the vertices already in the tree to a vertex outside it.</p>
+<div class="fig">
+<svg viewBox="0 0 650 250" width="100%" height="220">
+<path d="M330,15 C300,70 360,160 320,235" fill="none" stroke="#e26d3f" stroke-width="3" stroke-dasharray="7 5"/>
+<g class="edge"><line class="chosen" x1="80" y1="60" x2="210" y2="55"/><line class="chosen" x1="210" y1="55" x2="170" y2="190"/><line x1="80" y1="60" x2="170" y2="190"/><line x1="210" y1="55" x2="460" y2="45"/><line class="chosen" x1="170" y1="190" x2="455" y2="185"/><line x1="460" y1="45" x2="455" y2="185"/><line x1="460" y1="45" x2="585" y2="130"/><line x1="455" y1="185" x2="585" y2="130"/></g>
+<g class="wt"><text x="140" y="47">1</text><text x="185" y="125">3</text><text x="110" y="130">4</text><text x="330" y="42">8</text><text x="310" y="180">2 (light)</text><text x="470" y="120">5</text><text x="525" y="75">7</text><text x="520" y="180">6</text></g>
+<g><circle class="node" cx="80" cy="60" r="19"/><circle class="node" cx="210" cy="55" r="19"/><circle class="node" cx="170" cy="190" r="19"/><circle class="node" cx="460" cy="45" r="19"/><circle class="node" cx="455" cy="185" r="19"/><circle class="node" cx="585" cy="130" r="19"/>
+<text class="nt" x="74" y="65">A</text><text class="nt" x="204" y="60">B</text><text class="nt" x="164" y="195">C</text><text class="nt" x="454" y="50">D</text><text class="nt" x="449" y="190">E</text><text class="nt" x="579" y="135">F</text></g>
+<text x="90" y="235" class="wt">Tree vertices S</text><text x="455" y="235" class="wt">Outside V−S</text>
+</svg>
+<div class="caption">The current cut respects chosen edges. CE(2) is the light crossing edge, so it is safe.</div>
+</div>
+<h3>The data stored</h3>
+<table><tr><th>Item</th><th>Meaning</th><th>When changed?</th></tr>
+<tr><td>key[v]</td><td>minimum weight of an edge currently known from the tree to v</td><td>when a newly added u offers w(u,v)&lt;key[v]</td></tr>
+<tr><td>π[v]</td><td>tree vertex giving that best edge</td><td>together with key[v]</td></tr>
+<tr><td>Q</td><td>vertices not yet included in the MST</td><td>remove the minimum-key vertex each iteration</td></tr></table>
+<div class="box"><b>Invariant.</b> At the start of each loop, V−Q is one connected partial tree, and for each v∈Q, key[v] is the lightest known edge joining v to V−Q.</div>
+<div class="box warn"><b>Key is not a path distance.</b> If A—B costs 4 and B—C costs 2, Prim may store key[C]=2, not 6. Prim minimizes the next attachment edge.</div>
+</section>
+
+<section class="page">
+<h2>Prim: pseudocode and a complete dry run</h2>
+<pre class="algo"><b>MST-PRIM(G, w, r)</b>
+for each vertex u ∈ G.V
+    u.key = ∞
+    u.π = NIL
+r.key = 0
+Q = G.V                         // min-priority queue
+while Q ≠ ∅
+    u = EXTRACT-MIN(Q)
+    for each v ∈ G.Adj[u]
+        if v ∈ Q and w(u,v) &lt; v.key
+            v.π = u
+            v.key = w(u,v)
+            DECREASE-KEY(Q, v, w(u,v))
+return { (v, v.π) : v ≠ r }</pre>
+<h3>Worked graph</h3>
+<p>Edges: AB=1, AC=4, BC=3, BD=2, CD=7, CE=2, DE=5. Start at A.</p>
+<table class="tight">
+<tr><th>Extract</th><th>Tree after extraction</th><th>Updates caused</th><th>Keys outside tree</th></tr>
+<tr><td>A(0)</td><td>{A}</td><td>B←1 via A; C←4 via A</td><td>B:1, C:4, D:∞, E:∞</td></tr>
+<tr><td>B(1)</td><td>{A,B}</td><td>C←3 via B; D←2 via B</td><td>D:2, C:3, E:∞</td></tr>
+<tr><td>D(2)</td><td>{A,B,D}</td><td>E←5 via D; C stays 3</td><td>C:3, E:5</td></tr>
+<tr><td>C(3)</td><td>{A,B,C,D}</td><td>E←2 via C</td><td>E:2</td></tr>
+<tr><td>E(2)</td><td>all vertices</td><td>done</td><td>—</td></tr>
+</table>
+<div class="formula">MST edges = AB(1), BD(2), BC(3), CE(2) &nbsp;⇒&nbsp; total weight = 8</div>
+<div class="box exam"><span class="label">How to earn dry-run marks</span>Show extraction order, key changes, parent changes, final V−1 edges, and total weight. Merely drawing the final tree hides your method.</div>
+<h3>Why each chosen edge is safe</h3>
+<div class="box proof"><span class="label">Cut-property proof</span>
+Immediately before u is extracted, take the cut (V−Q,Q). All already selected parent edges lie inside V−Q, so the cut respects A. Since u has minimum key in Q, (u,π[u]) is a light edge crossing this cut. By the cut theorem it is safe. Inductively every selected edge belongs to some MST; after V−1 selections the result is an MST.</div>
+<h3>Complexity</h3>
+<table><tr><th>Implementation</th><th>Time</th><th>Best interpretation</th></tr>
+<tr><td>Adjacency matrix + linear scan</td><td>Θ(V²)</td><td>simple; often good for dense graphs</td></tr>
+<tr><td>Adjacency list + binary heap</td><td>O(E log V)</td><td>standard sparse-graph implementation</td></tr>
+<tr><td>Adjacency list + Fibonacci heap</td><td>O(E + V log V) amortized</td><td>theoretical improvement when decrease-key dominates</td></tr></table>
+</section>
+
+<section class="page">
+<h2>Prim simulation I: initialization → A → B</h2>
+<div class="legend"><span><i class="dot in"></i>already in MST</span><span><i class="dot active"></i>just extracted</span><span style="color:#0e9488;font-weight:800">green edge = chosen parent</span></div>
+<div class="simgrid">
+<div class="frame">
+<h4>Frame 0 — initialize at A</h4>
+<svg viewBox="0 0 340 205" width="100%" height="170">
+<g class="edge"><line x1="45" y1="50" x2="155" y2="35"/><line x1="45" y1="50" x2="105" y2="165"/><line x1="155" y1="35" x2="105" y2="165"/><line x1="155" y1="35" x2="270" y2="50"/><line x1="105" y1="165" x2="270" y2="50"/><line x1="105" y1="165" x2="265" y2="165"/><line x1="270" y1="50" x2="265" y2="165"/></g>
+<g class="wt"><text x="96" y="33">1</text><text x="60" y="111">4</text><text x="126" y="108">3</text><text x="211" y="34">2</text><text x="190" y="106">7</text><text x="181" y="180">2</text><text x="275" y="111">5</text></g>
+<g><circle cx="45" cy="50" r="19" fill="#ffd166" stroke="#12355b" stroke-width="2"/><circle class="node" cx="155" cy="35" r="19"/><circle class="node" cx="105" cy="165" r="19"/><circle class="node" cx="270" cy="50" r="19"/><circle class="node" cx="265" cy="165" r="19"/>
+<text class="nt" x="39" y="55">A</text><text class="nt" x="149" y="40">B</text><text class="nt" x="99" y="170">C</text><text class="nt" x="264" y="55">D</text><text class="nt" x="259" y="170">E</text></g>
+<g class="small"><text x="20" y="82">0</text><text x="145" y="71">∞</text><text x="94" y="201">∞</text><text x="261" y="87">∞</text><text x="256" y="201">∞</text></g>
+</svg>
+<div class="state">key: A=0, B=∞, C=∞, D=∞, E=∞</div>
+</div>
+<div class="frame current">
+<h4>Frame 1 — extract A; scan A’s edges</h4>
+<svg viewBox="0 0 340 205" width="100%" height="170">
+<g class="edge"><line x1="45" y1="50" x2="155" y2="35"/><line x1="45" y1="50" x2="105" y2="165"/><line x1="155" y1="35" x2="105" y2="165"/><line x1="155" y1="35" x2="270" y2="50"/><line x1="105" y1="165" x2="270" y2="50"/><line x1="105" y1="165" x2="265" y2="165"/><line x1="270" y1="50" x2="265" y2="165"/></g>
+<g class="wt"><text x="96" y="33">1</text><text x="60" y="111">4</text><text x="126" y="108">3</text><text x="211" y="34">2</text><text x="190" y="106">7</text><text x="181" y="180">2</text><text x="275" y="111">5</text></g>
+<g><circle cx="45" cy="50" r="19" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle class="node" cx="155" cy="35" r="19"/><circle class="node" cx="105" cy="165" r="19"/><circle class="node" cx="270" cy="50" r="19"/><circle class="node" cx="265" cy="165" r="19"/>
+<text class="nt" x="39" y="55">A</text><text class="nt" x="149" y="40">B</text><text class="nt" x="99" y="170">C</text><text class="nt" x="264" y="55">D</text><text class="nt" x="259" y="170">E</text></g>
+<g class="small"><text x="20" y="82">0</text><text x="137" y="71">1,A</text><text x="86" y="201">4,A</text><text x="261" y="87">∞</text><text x="256" y="201">∞</text></g>
+</svg>
+<div class="state">B: ∞→1 via A; C: ∞→4 via A</div>
+</div>
+<div class="frame">
+<h4>Frame 2 — extract B with minimum key 1</h4>
+<svg viewBox="0 0 340 205" width="100%" height="170">
+<g class="edge"><line class="chosen" x1="45" y1="50" x2="155" y2="35"/><line x1="45" y1="50" x2="105" y2="165"/><line x1="155" y1="35" x2="105" y2="165"/><line x1="155" y1="35" x2="270" y2="50"/><line x1="105" y1="165" x2="270" y2="50"/><line x1="105" y1="165" x2="265" y2="165"/><line x1="270" y1="50" x2="265" y2="165"/></g>
+<g class="wt"><text x="96" y="25">1</text><text x="60" y="111">4</text><text x="126" y="108">3</text><text x="211" y="34">2</text><text x="190" y="106">7</text><text x="181" y="180">2</text><text x="275" y="111">5</text></g>
+<g><circle cx="45" cy="50" r="19" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle cx="155" cy="35" r="19" fill="#ffd166" stroke="#12355b" stroke-width="2"/><circle class="node" cx="105" cy="165" r="19"/><circle class="node" cx="270" cy="50" r="19"/><circle class="node" cx="265" cy="165" r="19"/>
+<text class="nt" x="39" y="55">A</text><text class="nt" x="149" y="40">B</text><text class="nt" x="99" y="170">C</text><text class="nt" x="264" y="55">D</text><text class="nt" x="259" y="170">E</text></g>
+<g class="small"><text x="20" y="82">0</text><text x="137" y="71">1,A</text><text x="86" y="201">4,A</text><text x="261" y="87">∞</text><text x="256" y="201">∞</text></g>
+</svg>
+<div class="state">choose parent edge AB(1); MST weight so far=1</div>
+</div>
+<div class="frame current">
+<h4>Frame 3 — scan B’s outside neighbors</h4>
+<svg viewBox="0 0 340 205" width="100%" height="170">
+<g class="edge"><line class="chosen" x1="45" y1="50" x2="155" y2="35"/><line x1="45" y1="50" x2="105" y2="165"/><line x1="155" y1="35" x2="105" y2="165"/><line x1="155" y1="35" x2="270" y2="50"/><line x1="105" y1="165" x2="270" y2="50"/><line x1="105" y1="165" x2="265" y2="165"/><line x1="270" y1="50" x2="265" y2="165"/></g>
+<g class="wt"><text x="96" y="25">1</text><text x="60" y="111">4</text><text x="126" y="108">3</text><text x="211" y="34">2</text><text x="190" y="106">7</text><text x="181" y="180">2</text><text x="275" y="111">5</text></g>
+<g><circle cx="45" cy="50" r="19" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle cx="155" cy="35" r="19" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle class="node" cx="105" cy="165" r="19"/><circle class="node" cx="270" cy="50" r="19"/><circle class="node" cx="265" cy="165" r="19"/>
+<text class="nt" x="39" y="55">A</text><text class="nt" x="149" y="40">B</text><text class="nt" x="99" y="170">C</text><text class="nt" x="264" y="55">D</text><text class="nt" x="259" y="170">E</text></g>
+<g class="small"><text x="20" y="82">0</text><text x="137" y="71">1,A</text><text x="86" y="201">3,B</text><text x="252" y="87">2,B</text><text x="256" y="201">∞</text></g>
+</svg>
+<div class="state">C: 4→3 via B; D: ∞→2 via B</div>
+</div>
+</div>
+<div class="simnote"><b>Read each node label as “key,parent.”</b> The smallest key remaining is now D=2, so D is extracted next—not C.</div>
+</section>
+
+<section class="page">
+<h2>Prim simulation II: D → C → E</h2>
+<div class="simgrid">
+<div class="frame">
+<h4>Frame 4 — extract D(2); choose BD</h4>
+<svg viewBox="0 0 340 205" width="100%" height="170">
+<g class="edge"><line class="chosen" x1="45" y1="50" x2="155" y2="35"/><line x1="45" y1="50" x2="105" y2="165"/><line x1="155" y1="35" x2="105" y2="165"/><line class="chosen" x1="155" y1="35" x2="270" y2="50"/><line x1="105" y1="165" x2="270" y2="50"/><line x1="105" y1="165" x2="265" y2="165"/><line x1="270" y1="50" x2="265" y2="165"/></g>
+<g class="wt"><text x="96" y="25">1</text><text x="60" y="111">4</text><text x="126" y="108">3</text><text x="211" y="26">2</text><text x="190" y="106">7</text><text x="181" y="180">2</text><text x="275" y="111">5</text></g>
+<g><circle cx="45" cy="50" r="19" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle cx="155" cy="35" r="19" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle class="node" cx="105" cy="165" r="19"/><circle cx="270" cy="50" r="19" fill="#ffd166" stroke="#12355b" stroke-width="2"/><circle class="node" cx="265" cy="165" r="19"/>
+<text class="nt" x="39" y="55">A</text><text class="nt" x="149" y="40">B</text><text class="nt" x="99" y="170">C</text><text class="nt" x="264" y="55">D</text><text class="nt" x="259" y="170">E</text></g>
+<text class="small" x="86" y="201">C=3,B</text><text class="small" x="245" y="201">E=∞</text>
+</svg><div class="state">MST={AB,BD}; weight=3</div>
+</div>
+<div class="frame current">
+<h4>Frame 5 — scan D; E becomes 5 via D</h4>
+<svg viewBox="0 0 340 205" width="100%" height="170">
+<g class="edge"><line class="chosen" x1="45" y1="50" x2="155" y2="35"/><line x1="45" y1="50" x2="105" y2="165"/><line x1="155" y1="35" x2="105" y2="165"/><line class="chosen" x1="155" y1="35" x2="270" y2="50"/><line x1="105" y1="165" x2="270" y2="50"/><line x1="105" y1="165" x2="265" y2="165"/><line x1="270" y1="50" x2="265" y2="165"/></g>
+<g class="wt"><text x="96" y="25">1</text><text x="60" y="111">4</text><text x="126" y="108">3</text><text x="211" y="26">2</text><text x="190" y="106">7</text><text x="181" y="180">2</text><text x="275" y="111">5</text></g>
+<g><circle cx="45" cy="50" r="19" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle cx="155" cy="35" r="19" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle class="node" cx="105" cy="165" r="19"/><circle cx="270" cy="50" r="19" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle class="node" cx="265" cy="165" r="19"/>
+<text class="nt" x="39" y="55">A</text><text class="nt" x="149" y="40">B</text><text class="nt" x="99" y="170">C</text><text class="nt" x="264" y="55">D</text><text class="nt" x="259" y="170">E</text></g>
+<text class="small" x="86" y="201">C=3,B</text><text class="small" x="239" y="201">E=5,D</text>
+</svg><div class="state">CD=7 cannot beat C’s key 3; E: ∞→5</div>
+</div>
+<div class="frame">
+<h4>Frame 6 — extract C(3); choose BC</h4>
+<svg viewBox="0 0 340 205" width="100%" height="170">
+<g class="edge"><line class="chosen" x1="45" y1="50" x2="155" y2="35"/><line x1="45" y1="50" x2="105" y2="165"/><line class="chosen" x1="155" y1="35" x2="105" y2="165"/><line class="chosen" x1="155" y1="35" x2="270" y2="50"/><line x1="105" y1="165" x2="270" y2="50"/><line x1="105" y1="165" x2="265" y2="165"/><line x1="270" y1="50" x2="265" y2="165"/></g>
+<g class="wt"><text x="96" y="25">1</text><text x="60" y="111">4</text><text x="126" y="108">3</text><text x="211" y="26">2</text><text x="190" y="106">7</text><text x="181" y="180">2</text><text x="275" y="111">5</text></g>
+<g><circle cx="45" cy="50" r="19" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle cx="155" cy="35" r="19" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle cx="105" cy="165" r="19" fill="#ffd166" stroke="#12355b" stroke-width="2"/><circle cx="270" cy="50" r="19" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle class="node" cx="265" cy="165" r="19"/>
+<text class="nt" x="39" y="55">A</text><text class="nt" x="149" y="40">B</text><text class="nt" x="99" y="170">C</text><text class="nt" x="264" y="55">D</text><text class="nt" x="259" y="170">E</text></g>
+<text class="small" x="239" y="201">E=5,D</text>
+</svg><div class="state">MST={AB,BD,BC}; weight=6</div>
+</div>
+<div class="frame current">
+<h4>Frame 7 — C improves E; extract E</h4>
+<svg viewBox="0 0 340 205" width="100%" height="170">
+<g class="edge"><line class="chosen" x1="45" y1="50" x2="155" y2="35"/><line x1="45" y1="50" x2="105" y2="165"/><line class="chosen" x1="155" y1="35" x2="105" y2="165"/><line class="chosen" x1="155" y1="35" x2="270" y2="50"/><line x1="105" y1="165" x2="270" y2="50"/><line class="chosen" x1="105" y1="165" x2="265" y2="165"/><line x1="270" y1="50" x2="265" y2="165"/></g>
+<g class="wt"><text x="96" y="25">1</text><text x="60" y="111">4</text><text x="126" y="108">3</text><text x="211" y="26">2</text><text x="190" y="106">7</text><text x="181" y="156">2</text><text x="275" y="111">5</text></g>
+<g><circle cx="45" cy="50" r="19" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle cx="155" cy="35" r="19" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle cx="105" cy="165" r="19" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle cx="270" cy="50" r="19" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle cx="265" cy="165" r="19" fill="#ffd166" stroke="#12355b" stroke-width="2"/>
+<text class="nt" x="39" y="55">A</text><text class="nt" x="149" y="40">B</text><text class="nt" x="99" y="170">C</text><text class="nt" x="264" y="55">D</text><text class="nt" x="259" y="170">E</text></g>
+</svg><div class="state">E: 5 via D → 2 via C; final weight=8</div>
+</div>
+</div>
+<div class="box exam"><b>Simulation conclusion:</b> extraction order A,B,D,C,E. Parent array: π[B]=A, π[D]=B, π[C]=B, π[E]=C. The rejected edges are not “bad”; they simply never become the cheapest crossing attachment.</div>
+</section>
+
+<section class="page">
+<h2>Prim vs Kruskal—and the traps examiners like</h2>
+<table>
+<tr><th>Feature</th><th>Prim</th><th>Kruskal</th></tr>
+<tr><td>Growth</td><td>one connected tree</td><td>a forest; components merge</td></tr>
+<tr><td>Greedy choice</td><td>minimum edge leaving current tree</td><td>globally next lightest edge that causes no cycle</td></tr>
+<tr><td>Main structure</td><td>min-priority queue; key and parent</td><td>sorted edges; disjoint-set union</td></tr>
+<tr><td>Typical time</td><td>O(E log V) with binary heap</td><td>O(E log E)=O(E log V)</td></tr>
+<tr><td>Disconnected graph</td><td>restart per component for an MSF</td><td>naturally returns an MSF</td></tr>
+<tr><td>Negative weights</td><td>allowed</td><td>allowed</td></tr>
+</table>
+<div class="grid2">
+<div class="box warn"><span class="label">Wrong claim</span>“Prim always chooses the globally smallest unused edge.”<br><b>Correction:</b> it chooses the smallest edge crossing the current tree cut.</div>
+<div class="box warn"><span class="label">Wrong claim</span>“The root changes the MST weight.”<br><b>Correction:</b> it may change which MST appears under ties, never the optimum weight.</div>
+<div class="box warn"><span class="label">Wrong claim</span>“Distinct weights are required.”<br><b>Correction:</b> no; ties can create multiple valid MSTs.</div>
+<div class="box warn"><span class="label">Wrong claim</span>“Prim is Dijkstra on an undirected graph.”<br><b>Correction:</b> they share a queue pattern but use different keys.</div>
+</div>
+<h3>Exam-ready short answers</h3>
+<div class="answer"><b>Why does an MST have V−1 edges?</b> A spanning tree is connected and acyclic; every tree on V vertices has exactly V−1 edges.</div>
+<div class="answer"><b>Can an MST contain a negative edge?</b> Yes. MST algorithms compare edge weights; negative weights create no “unbounded walk” issue because a tree has no cycle.</div>
+<div class="answer"><b>When is an MST unique?</b> Distinct edge weights guarantee uniqueness. Equal weights do not necessarily imply non-uniqueness.</div>
+<div class="answer"><b>What is a safe edge?</b> An edge whose addition to A preserves the existence of an MST containing A∪{e}.</div>
+<div class="box tip"><b>Memory line:</b> Kruskal asks “Do the endpoints belong to different components?” Prim asks “Is this the cheapest door from my current room?”</div>
+</section>
+
+<section class="page">
+<span class="lecture">LECTURE 04</span>
+<h2>Single-source shortest paths: the mathematical ground</h2>
+<p>Given a weighted directed graph G=(V,E), weight function w:E→ℝ, and source s, SSSP asks for the minimum path weight from s to every vertex.</p>
+<div class="formula">w(p)=Σ w(v<sub>i−1</sub>,v<sub>i</sub>) &nbsp;&nbsp;&nbsp; δ(s,v)=minimum path weight from s to v</div>
+<table><tr><th>Situation</th><th>δ(s,v)</th><th>Meaning</th></tr>
+<tr><td>At least one path; no usable negative cycle</td><td>finite</td><td>a shortest path exists</td></tr>
+<tr><td>No path from s to v</td><td>∞</td><td>v is unreachable</td></tr>
+<tr><td>A reachable negative cycle can reach v</td><td>−∞</td><td>no finite shortest path exists</td></tr></table>
+<div class="fig">
+<svg viewBox="0 0 650 195" width="100%" height="175">
+<defs><marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#718096"/></marker></defs>
+<g class="edge" marker-end="url(#a)"><line x1="70" y1="95" x2="210" y2="45"/><line x1="70" y1="95" x2="210" y2="150"/><line x1="220" y1="45" x2="390" y2="95"/><line x1="220" y1="150" x2="390" y2="95"/><line class="bad" x1="400" y1="85" x2="530" y2="45"/><path class="bad" d="M540,55 C610,80 610,140 535,145" fill="none"/><path class="bad" d="M525,135 C475,110 480,70 525,55" fill="none"/></g>
+<g class="wt"><text x="135" y="55">3</text><text x="135" y="145">8</text><text x="295" y="60">2</text><text x="295" y="145">−5</text><text x="455" y="55">1</text><text x="570" y="105">−4</text><text x="485" y="105">1</text></g>
+<g><circle class="node" cx="60" cy="95" r="19"/><circle class="node" cx="220" cy="40" r="19"/><circle class="node" cx="220" cy="155" r="19"/><circle class="node" cx="400" cy="95" r="19"/><circle class="node" cx="535" cy="45" r="19"/><circle class="node" cx="530" cy="150" r="19"/>
+<text class="nt" x="55" y="100">s</text><text class="nt" x="215" y="45">a</text><text class="nt" x="215" y="160">b</text><text class="nt" x="395" y="100">c</text><text class="nt" x="530" y="50">x</text><text class="nt" x="525" y="155">y</text></g>
+</svg><div class="caption">The x↔y cycle weighs −3. Because it is reachable from s, distances to x, y—and anything reachable from them—are −∞.</div></div>
+<h3>Optimal substructure</h3>
+<div class="box proof"><b>Lemma.</b> Every subpath of a shortest path is itself a shortest path between its endpoints.<br><b>Proof by replacement:</b> if a subpath were not shortest, replace it by a cheaper route; the entire s→v path becomes cheaper, contradicting shortestness.</div>
+<div class="box warn"><b>Subtle point:</b> negative edges are not themselves the problem. A <em>reachable negative cycle</em> is the obstruction. Bellman–Ford supports negative edges and detects such cycles.</div>
+</section>
+
+<section class="page">
+<h2>Initialization and relaxation: the engine of SSSP</h2>
+<pre class="algo"><b>INITIALIZE-SINGLE-SOURCE(G, s)</b>
+for each vertex v ∈ G.V
+    v.d = ∞
+    v.π = NIL
+s.d = 0
+
+<b>RELAX(u, v, w)</b>
+if v.d &gt; u.d + w(u,v)
+    v.d = u.d + w(u,v)
+    v.π = u</pre>
+<div class="formula">Relax (u,v) exactly when d[v] &gt; d[u] + w(u,v)</div>
+<h3>One edge, slowly</h3>
+<table><tr><th>Before</th><th>Edge</th><th>Test</th><th>After</th></tr>
+<tr><td>d[u]=7, d[v]=15</td><td>w(u,v)=3</td><td>15 &gt; 7+3 ✓</td><td>d[v]=10, π[v]=u</td></tr>
+<tr><td>d[u]=7, d[v]=9</td><td>w(u,v)=3</td><td>9 &gt; 10 ✗</td><td>no change</td></tr>
+<tr><td>d[u]=∞</td><td>any finite weight</td><td>∞+w=∞</td><td>unreachable u cannot improve v</td></tr></table>
+<div class="box"><b>Meaning of d[v].</b> It is not a guess below the truth. It is the weight of some discovered s→v walk, hence an <b>upper bound</b> on δ(s,v). Relaxation can only lower it.</div>
+<h3>The properties worth quoting</h3>
+<table class="tight">
+<tr><th>Property</th><th>Exam-ready statement</th><th>Why it matters</th></tr>
+<tr><td>Triangle inequality</td><td>δ(s,v) ≤ δ(s,u)+w(u,v)</td><td>the true best route to v is no worse than going optimally to u then taking (u,v)</td></tr>
+<tr><td>Upper bound</td><td>d[v] ≥ δ(s,v) always; once equal, it never changes</td><td>estimates approach truth from above</td></tr>
+<tr><td>No-path</td><td>if v is unreachable, d[v]=δ(s,v)=∞</td><td>no relaxation can invent a path</td></tr>
+<tr><td>Convergence</td><td>if d[u]=δ(s,u), relaxing a shortest-path edge (u,v) makes d[v]=δ(s,v)</td><td>correctness propagates one edge forward</td></tr>
+<tr><td>Path relaxation</td><td>relax shortest-path edges in order ⇒ final vertex becomes correct</td><td>core of Bellman–Ford and DAG-SP proofs</td></tr>
+<tr><td>Predecessor subgraph</td><td>when all reachable distances are correct, π edges form a shortest-path tree</td><td>turns numbers into actual routes</td></tr>
+</table>
+</section>
+
+<section class="page">
+<h2>Relaxation simulation: watch one improvement propagate</h2>
+<p>Graph: s→u=7, s→x=4, x→u=1, u→v=3. The labels above vertices are current d-values.</p>
+<div class="simgrid">
+<div class="frame">
+<h4>Frame 0 — initialization</h4>
+<svg viewBox="0 0 340 150" width="100%" height="125">
+<defs><marker id="r0" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#718096"/></marker></defs>
+<g class="edge" marker-end="url(#r0)"><line x1="55" y1="75" x2="165" y2="35"/><line x1="55" y1="75" x2="165" y2="115"/><line x1="180" y1="105" x2="180" y2="48"/><line x1="195" y1="35" x2="295" y2="75"/></g>
+<g class="wt"><text x="105" y="43">7</text><text x="105" y="116">4</text><text x="187" y="78">1</text><text x="245" y="43">3</text></g>
+<g><circle cx="45" cy="75" r="18" fill="#ffd166" stroke="#12355b" stroke-width="2"/><circle class="node" cx="180" cy="35" r="18"/><circle class="node" cx="180" cy="115" r="18"/><circle class="node" cx="305" cy="75" r="18"/><text class="nt" x="40" y="80">s</text><text class="nt" x="175" y="40">u</text><text class="nt" x="175" y="120">x</text><text class="nt" x="300" y="80">v</text></g>
+<text class="small" x="34" y="48">0</text><text class="small" x="170" y="12">∞</text><text class="small" x="170" y="145">∞</text><text class="small" x="297" y="48">∞</text>
+</svg><div class="state">d=[s:0,u:∞,x:∞,v:∞]</div>
+</div>
+<div class="frame current">
+<h4>Frame 1 — relax (s,u) and (s,x)</h4>
+<svg viewBox="0 0 340 150" width="100%" height="125">
+<defs><marker id="r1" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#718096"/></marker></defs>
+<g class="edge" marker-end="url(#r1)"><line class="chosen" x1="55" y1="75" x2="165" y2="35"/><line class="chosen" x1="55" y1="75" x2="165" y2="115"/><line x1="180" y1="105" x2="180" y2="48"/><line x1="195" y1="35" x2="295" y2="75"/></g>
+<g class="wt"><text x="105" y="43">7</text><text x="105" y="116">4</text><text x="187" y="78">1</text><text x="245" y="43">3</text></g>
+<g><circle cx="45" cy="75" r="18" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle class="node" cx="180" cy="35" r="18"/><circle class="node" cx="180" cy="115" r="18"/><circle class="node" cx="305" cy="75" r="18"/><text class="nt" x="40" y="80">s</text><text class="nt" x="175" y="40">u</text><text class="nt" x="175" y="120">x</text><text class="nt" x="300" y="80">v</text></g>
+<text class="small" x="34" y="48">0</text><text class="small" x="170" y="12">7</text><text class="small" x="170" y="145">4</text><text class="small" x="297" y="48">∞</text>
+</svg><div class="state">u: ∞→7 via s; x: ∞→4 via s</div>
+</div>
+<div class="frame current">
+<h4>Frame 2 — relax (x,u): overwrite parent</h4>
+<svg viewBox="0 0 340 150" width="100%" height="125">
+<defs><marker id="r2" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#718096"/></marker></defs>
+<g class="edge" marker-end="url(#r2)"><line x1="55" y1="75" x2="165" y2="35"/><line class="chosen" x1="55" y1="75" x2="165" y2="115"/><line class="chosen" x1="180" y1="105" x2="180" y2="48"/><line x1="195" y1="35" x2="295" y2="75"/></g>
+<g class="wt"><text x="105" y="43">7</text><text x="105" y="116">4</text><text x="187" y="78">1</text><text x="245" y="43">3</text></g>
+<g><circle cx="45" cy="75" r="18" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle cx="180" cy="35" r="18" fill="#ffd166" stroke="#12355b" stroke-width="2"/><circle cx="180" cy="115" r="18" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle class="node" cx="305" cy="75" r="18"/><text class="nt" x="40" y="80">s</text><text class="nt" x="175" y="40">u</text><text class="nt" x="175" y="120">x</text><text class="nt" x="300" y="80">v</text></g>
+<text class="small" x="34" y="48">0</text><text class="small" x="170" y="12">5</text><text class="small" x="170" y="145">4</text><text class="small" x="297" y="48">∞</text>
+</svg><div class="state">4+1=5&lt;7 ⇒ d[u]=5, π[u]=x</div>
+</div>
+<div class="frame current">
+<h4>Frame 3 — relax (u,v); truth moves forward</h4>
+<svg viewBox="0 0 340 150" width="100%" height="125">
+<defs><marker id="r3" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#718096"/></marker></defs>
+<g class="edge" marker-end="url(#r3)"><line x1="55" y1="75" x2="165" y2="35"/><line class="chosen" x1="55" y1="75" x2="165" y2="115"/><line class="chosen" x1="180" y1="105" x2="180" y2="48"/><line class="chosen" x1="195" y1="35" x2="295" y2="75"/></g>
+<g class="wt"><text x="105" y="43">7</text><text x="105" y="116">4</text><text x="187" y="78">1</text><text x="245" y="43">3</text></g>
+<g><circle cx="45" cy="75" r="18" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle cx="180" cy="35" r="18" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle cx="180" cy="115" r="18" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle cx="305" cy="75" r="18" fill="#ffd166" stroke="#12355b" stroke-width="2"/><text class="nt" x="40" y="80">s</text><text class="nt" x="175" y="40">u</text><text class="nt" x="175" y="120">x</text><text class="nt" x="300" y="80">v</text></g>
+<text class="small" x="34" y="48">0</text><text class="small" x="170" y="12">5</text><text class="small" x="170" y="145">4</text><text class="small" x="297" y="48">8</text>
+</svg><div class="state">5+3=8&lt;∞ ⇒ d[v]=8, π[v]=u</div>
+</div>
+</div>
+<div class="box proof"><b>What the pictures prove intuitively:</b> a predecessor edge may be replaced when a cheaper route is discovered. Once a vertex receives its true shortest distance, relaxing the next edge of a shortest path propagates truth to the next vertex.</div>
+</section>
+
+<section class="page">
+<h2>Why ordered relaxation works</h2>
+<p>Let p=⟨v₀=s,v₁,…,vₖ=v⟩ be a shortest path. If its edges are relaxed in path order, correctness walks forward like falling dominoes.</p>
+<table><tr><th>After relaxing</th><th>What becomes permanently correct?</th><th>Reason</th></tr>
+<tr><td>(v₀,v₁)</td><td>d[v₁]=δ(s,v₁)</td><td>d[s]=0=δ(s,s), then convergence</td></tr>
+<tr><td>(v₁,v₂)</td><td>d[v₂]=δ(s,v₂)</td><td>d[v₁] is correct, then convergence</td></tr>
+<tr><td>…</td><td>…</td><td>induction</td></tr>
+<tr><td>(vₖ₋₁,vₖ)</td><td>d[v]=δ(s,v)</td><td>the whole shortest path has propagated</td></tr></table>
+<div class="box proof"><b>Path-relaxation property.</b> The result remains true even if unrelated relaxations occur between these edges. Upper bounds cannot fall below the true shortest distance, so extra work cannot destroy a correct label.</div>
+<h3>Predecessors and path reconstruction</h3>
+<pre class="algo"><b>PRINT-PATH(G, s, v)</b>
+if v == s
+    print s
+else if v.π == NIL
+    print "no path"
+else
+    PRINT-PATH(G, s, v.π)
+    print v</pre>
+<div class="box tip"><b>Direction alert:</b> π[v] points backward toward s. To print forward, recurse (or push vertices on a stack) before printing v.</div>
+<h3>Shortest paths and cycles</h3>
+<table><tr><th>Cycle weight on a walk</th><th>Effect</th><th>Conclusion</th></tr>
+<tr><td>positive</td><td>removing it makes the walk cheaper</td><td>not needed in a shortest path</td></tr>
+<tr><td>zero</td><td>removing it preserves weight</td><td>a simple shortest path still exists</td></tr>
+<tr><td>negative and reachable</td><td>repeating it decreases weight without bound</td><td>no finite shortest path downstream</td></tr></table>
+<div class="box exam"><b>Why at most V−1 edges?</b> When no reachable negative cycle affects v, a shortest s→v path can be chosen simple. A simple path visits at most V vertices, hence uses at most V−1 edges. This is the exact fact Bellman–Ford exploits.</div>
+</section>
+
+<section class="page">
+<span class="lecture">LECTURE 05</span>
+<h2>Bellman–Ford: negative edges handled correctly</h2>
+<p>Bellman–Ford repeatedly relaxes every edge. It returns TRUE if no negative-weight cycle is reachable from s; otherwise it returns FALSE.</p>
+<pre class="algo"><b>BELLMAN-FORD(G, w, s)</b>
+INITIALIZE-SINGLE-SOURCE(G, s)
+for i = 1 to |G.V| − 1
+    for each edge (u,v) ∈ G.E
+        RELAX(u,v,w)
+for each edge (u,v) ∈ G.E
+    if v.d &gt; u.d + w(u,v)
+        return FALSE                 // reachable negative cycle
+return TRUE</pre>
+<div class="grid2">
+<div class="box"><span class="label">Main phase</span>V−1 full edge scans. After pass i, every shortest path using at most i edges has been accounted for.</div>
+<div class="box warn"><span class="label">Detection phase</span>One extra scan. Any further improvement proves a reachable negative cycle.</div>
+</div>
+<h3>Why V−1 passes?</h3>
+<div class="box proof">Choose a simple shortest path p with k≤V−1 edges. In each full scan, at least the next edge of p is relaxed after its predecessor has become correct (regardless of edge order, one full pass advances correctness by at least one path edge). Therefore after V−1 passes every reachable finite shortest distance is correct.</div>
+<h3>Complexity</h3>
+<div class="formula">Time = Θ(VE) &nbsp;&nbsp;&nbsp; Space = Θ(V) beyond graph storage</div>
+<p>There are V−1 scans plus one checking scan, each examining E edges. Initialization costs Θ(V).</p>
+<div class="box tip"><b>Safe early exit:</b> if an entire pass makes no update, stop early: all future passes would also make no update. Worst-case complexity remains Θ(VE).</div>
+<h3>What the return value does—and does not—say</h3>
+<ul>
+<li><b>TRUE:</b> no negative cycle is reachable from s; finite d-values are correct.</li>
+<li><b>FALSE:</b> a negative cycle reachable from s exists.</li>
+<li>A negative cycle in an unreachable component does <b>not</b> make this source’s run return FALSE, because all its vertices retain d=∞.</li>
+</ul>
+</section>
+
+<section class="page">
+<h2>Bellman–Ford dry run: the lecture-06 graph reconstructed</h2>
+<p>Edge scan order used by the available slides:</p>
+<div class="small">(t,x)=5, (t,y)=8, (t,z)=−4, (x,t)=−2, (y,x)=−3, (y,z)=9, (z,x)=7, (z,s)=2, (s,t)=6, (s,y)=7.</div>
+<table class="tight">
+<tr><th>State</th><th>d[s]</th><th>d[t]</th><th>d[x]</th><th>d[y]</th><th>d[z]</th><th>Important changes in this pass</th></tr>
+<tr><td>Initialize</td><td>0</td><td>∞</td><td>∞</td><td>∞</td><td>∞</td><td>source only</td></tr>
+<tr><td>Pass 1</td><td>0</td><td>6</td><td>∞</td><td>7</td><td>∞</td><td>late edges s→t and s→y become reachable</td></tr>
+<tr><td>Pass 2</td><td>0</td><td>6</td><td>4</td><td>7</td><td>2</td><td>x:11→4 via y; z:2 via t</td></tr>
+<tr><td>Pass 3</td><td>0</td><td>2</td><td>4</td><td>7</td><td>2</td><td>t:2 via x</td></tr>
+<tr><td>Pass 4</td><td>0</td><td>2</td><td>4</td><td>7</td><td>−2</td><td>z:−2 via t</td></tr>
+<tr><td>Extra scan</td><td colspan="5">no edge can improve</td><td>return TRUE</td></tr>
+</table>
+<h3>Final predecessor edges</h3>
+<table class="tight"><tr><th>Vertex</th><th>Distance</th><th>Predecessor</th><th>Shortest route</th></tr>
+<tr><td>y</td><td>7</td><td>s</td><td>s→y</td></tr>
+<tr><td>x</td><td>4</td><td>y</td><td>s→y→x</td></tr>
+<tr><td>t</td><td>2</td><td>x</td><td>s→y→x→t</td></tr>
+<tr><td>z</td><td>−2</td><td>t</td><td>s→y→x→t→z</td></tr></table>
+<div class="box exam"><b>The dry-run discipline:</b> respect the stated edge order. Bellman–Ford’s intermediate tables can differ under another order, although the final distances (when well-defined) do not.</div>
+<div class="box warn"><b>Do not update all vertices “simultaneously” unless the question explicitly uses that variant.</b> Standard CLRS pseudocode updates in place, so a later edge in the same pass can use an earlier update.</div>
+<h3>One update explained</h3>
+<div class="formula">During pass 2: d[y]+w(y,x)=7+(−3)=4 &lt; 11, so set d[x]=4 and π[x]=y.</div>
+</section>
+
+<section class="page">
+<h2>Bellman–Ford simulation I: distances spread from s</h2>
+<p class="small">Green arrows show predecessor edges known at the end of the pass. The scan order places s’s outgoing edges last, which is why pass 1 reaches only t and y.</p>
+<div class="frame">
+<h4>Frame 0 — initialization</h4>
+<svg viewBox="0 0 650 180" width="100%" height="145">
+<defs><marker id="b0" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#718096"/></marker></defs>
+<g class="edge" marker-end="url(#b0)"><line x1="75" y1="85" x2="445" y2="45"/><line x1="75" y1="95" x2="210" y2="140"/><line x1="245" y1="130" x2="315" y2="50"/><line x1="345" y1="40" x2="445" y2="40"/><line x1="475" y1="55" x2="520" y2="135"/><line x1="450" y1="55" x2="345" y2="45"/></g>
+<g class="wt"><text x="260" y="55">6</text><text x="142" y="137">7</text><text x="262" y="92">−3</text><text x="392" y="30">−2</text><text x="495" y="90">−4</text><text x="392" y="64">5</text></g>
+<g><circle cx="60" cy="90" r="20" fill="#ffd166" stroke="#12355b" stroke-width="2"/><circle class="node" cx="230" cy="145" r="20"/><circle class="node" cx="325" cy="40" r="20"/><circle class="node" cx="465" cy="45" r="20"/><circle class="node" cx="530" cy="145" r="20"/>
+<text class="nt" x="55" y="95">s</text><text class="nt" x="225" y="150">y</text><text class="nt" x="320" y="45">x</text><text class="nt" x="460" y="50">t</text><text class="nt" x="525" y="150">z</text></g>
+<text x="20" y="25" class="wt">d: s=0, t=∞, x=∞, y=∞, z=∞</text>
+</svg>
+</div>
+<div class="frame current">
+<h4>Frame 1 — after pass 1</h4>
+<svg viewBox="0 0 650 180" width="100%" height="145">
+<defs><marker id="b1" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#718096"/></marker></defs>
+<g class="edge" marker-end="url(#b1)"><line class="chosen" x1="75" y1="85" x2="445" y2="45"/><line class="chosen" x1="75" y1="95" x2="210" y2="140"/><line x1="245" y1="130" x2="315" y2="50"/><line x1="345" y1="40" x2="445" y2="40"/><line x1="475" y1="55" x2="520" y2="135"/></g>
+<g class="wt"><text x="260" y="55">6</text><text x="142" y="137">7</text><text x="262" y="92">−3</text><text x="392" y="30">−2</text><text x="495" y="90">−4</text></g>
+<g><circle cx="60" cy="90" r="20" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle class="node" cx="325" cy="40" r="20"/><circle cx="230" cy="145" r="20" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle cx="465" cy="45" r="20" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle class="node" cx="530" cy="145" r="20"/>
+<text class="nt" x="55" y="95">s</text><text class="nt" x="320" y="45">x</text><text class="nt" x="225" y="150">y</text><text class="nt" x="460" y="50">t</text><text class="nt" x="525" y="150">z</text></g>
+<text x="20" y="25" class="wt">d: s=0, t=6, x=∞, y=7, z=∞</text>
+</svg>
+<div class="simnote">Because (s,t) and (s,y) appear at the end of the scan, earlier edges cannot use these new values until pass 2.</div>
+</div>
+<div class="frame current">
+<h4>Frame 2 — after pass 2</h4>
+<svg viewBox="0 0 650 180" width="100%" height="145">
+<defs><marker id="b2" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#718096"/></marker></defs>
+<g class="edge" marker-end="url(#b2)"><line x1="75" y1="85" x2="445" y2="45"/><line class="chosen" x1="75" y1="95" x2="210" y2="140"/><line class="chosen" x1="245" y1="130" x2="315" y2="50"/><line x1="345" y1="40" x2="445" y2="40"/><line class="chosen" x1="475" y1="55" x2="520" y2="135"/></g>
+<g class="wt"><text x="260" y="55">6</text><text x="142" y="137">7</text><text x="262" y="92">−3</text><text x="392" y="30">−2</text><text x="495" y="90">−4</text></g>
+<g><circle cx="60" cy="90" r="20" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle cx="325" cy="40" r="20" fill="#ffd166" stroke="#12355b" stroke-width="2"/><circle cx="230" cy="145" r="20" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle cx="465" cy="45" r="20" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle cx="530" cy="145" r="20" fill="#ffd166" stroke="#12355b" stroke-width="2"/>
+<text class="nt" x="55" y="95">s</text><text class="nt" x="320" y="45">x</text><text class="nt" x="225" y="150">y</text><text class="nt" x="460" y="50">t</text><text class="nt" x="525" y="150">z</text></g>
+<text x="20" y="25" class="wt">d: s=0, t=6, x=4, y=7, z=2</text>
+</svg>
+<div class="simnote">t first proposes x=11; later y→x improves it to 4. Also t→z gives z=2.</div>
+</div>
+</section>
+
+<section class="page">
+<h2>Bellman–Ford simulation II: the four-edge shortest path completes</h2>
+<div class="frame current">
+<h4>Frame 3 — pass 3: x improves t</h4>
+<svg viewBox="0 0 650 165" width="100%" height="135">
+<defs><marker id="b3" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#718096"/></marker></defs>
+<g class="edge" marker-end="url(#b3)"><line x1="75" y1="85" x2="220" y2="140"/><line class="chosen" x1="240" y1="130" x2="315" y2="45"/><line class="chosen" x1="345" y1="40" x2="455" y2="40"/><line x1="475" y1="50" x2="520" y2="130"/></g>
+<g class="wt"><text x="142" y="132">7</text><text x="263" y="88">−3</text><text x="395" y="30">−2</text><text x="495" y="85">−4</text></g>
+<g><circle cx="60" cy="85" r="20" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle cx="230" cy="140" r="20" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle cx="325" cy="40" r="20" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle cx="465" cy="40" r="20" fill="#ffd166" stroke="#12355b" stroke-width="2"/><circle class="node" cx="530" cy="140" r="20"/>
+<text class="nt" x="55" y="90">s</text><text class="nt" x="225" y="145">y</text><text class="nt" x="320" y="45">x</text><text class="nt" x="460" y="45">t</text><text class="nt" x="525" y="145">z</text></g>
+<text x="20" y="22" class="wt">d: s=0, y=7, x=4, t=2, z=2</text>
+</svg>
+<div class="state">x→t: 4+(−2)=2 &lt; 6, so π[t]=x</div>
+</div>
+<div class="frame current">
+<h4>Frame 4 — pass 4: t improves z</h4>
+<svg viewBox="0 0 650 165" width="100%" height="135">
+<defs><marker id="b4" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#718096"/></marker></defs>
+<g class="edge" marker-end="url(#b4)"><line class="chosen" x1="75" y1="85" x2="220" y2="140"/><line class="chosen" x1="240" y1="130" x2="315" y2="45"/><line class="chosen" x1="345" y1="40" x2="455" y2="40"/><line class="chosen" x1="475" y1="50" x2="520" y2="130"/></g>
+<g class="wt"><text x="142" y="132">7</text><text x="263" y="88">−3</text><text x="395" y="30">−2</text><text x="495" y="85">−4</text></g>
+<g><circle cx="60" cy="85" r="20" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle cx="230" cy="140" r="20" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle cx="325" cy="40" r="20" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle cx="465" cy="40" r="20" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle cx="530" cy="140" r="20" fill="#ffd166" stroke="#12355b" stroke-width="2"/>
+<text class="nt" x="55" y="90">s</text><text class="nt" x="225" y="145">y</text><text class="nt" x="320" y="45">x</text><text class="nt" x="460" y="45">t</text><text class="nt" x="525" y="145">z</text></g>
+<text x="20" y="22" class="wt">d: s=0, y=7, x=4, t=2, z=−2</text>
+</svg>
+<div class="state">t→z: 2+(−4)=−2 &lt; 2, so π[z]=t</div>
+</div>
+<div class="frame">
+<h4>Frame 5 — extra scan: no improvement</h4>
+<svg viewBox="0 0 650 165" width="100%" height="135">
+<defs><marker id="b5" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#718096"/></marker></defs>
+<g class="edge" marker-end="url(#b5)"><line class="chosen" x1="75" y1="85" x2="220" y2="140"/><line class="chosen" x1="240" y1="130" x2="315" y2="45"/><line class="chosen" x1="345" y1="40" x2="455" y2="40"/><line class="chosen" x1="475" y1="50" x2="520" y2="130"/></g>
+<g class="wt"><text x="142" y="132">7</text><text x="263" y="88">−3</text><text x="395" y="30">−2</text><text x="495" y="85">−4</text></g>
+<g><circle cx="60" cy="85" r="20" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle cx="230" cy="140" r="20" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle cx="325" cy="40" r="20" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle cx="465" cy="40" r="20" fill="#90e1d6" stroke="#12355b" stroke-width="2"/><circle cx="530" cy="140" r="20" fill="#90e1d6" stroke="#12355b" stroke-width="2"/>
+<text class="nt" x="55" y="90">s</text><text class="nt" x="225" y="145">y</text><text class="nt" x="320" y="45">x</text><text class="nt" x="460" y="45">t</text><text class="nt" x="525" y="145">z</text></g>
+<text x="20" y="22" class="wt">final: s=0, y=7, x=4, t=2, z=−2  ✓</text>
+<text x="500" y="25" style="font:800 16px Arial;fill:#16834a">RETURN TRUE</text>
+</svg>
+<div class="state">Shortest-path tree: s→y→x→t→z</div>
+</div>
+<div class="box exam"><b>Path-length interpretation:</b> the final route to z uses four edges. With this unfavorable scan order, its correct value appears only on pass 4—exactly illustrating why the worst case requires V−1 passes.</div>
+</section>
+
+<section class="page">
+<h2>Negative-cycle detection and correctness</h2>
+<h3>Why the extra pass detects a reachable negative cycle</h3>
+<div class="box proof"><b>If Bellman–Ford returns FALSE:</b> some edge still satisfies d[v]&gt;d[u]+w(u,v). After V−1 passes this cannot happen when all reachable shortest distances are finite; therefore a reachable negative cycle must prevent convergence.</div>
+<div class="box proof"><b>If a reachable negative cycle exists:</b> suppose no cycle edge were relaxable after the main phase. Then for every cycle edge (vᵢ,vᵢ₊₁), d[vᵢ₊₁]≤d[vᵢ]+w(vᵢ,vᵢ₊₁). Summing cancels all d terms and implies 0≤weight(cycle), contradicting that its weight is negative. Hence at least one edge relaxes.</div>
+<h3>Correctness theorem—answer skeleton</h3>
+<div class="answer"><b>Theorem.</b> If no negative-weight cycle is reachable from s, Bellman–Ford terminates with d[v]=δ(s,v) for every reachable v, and the predecessor subgraph is a shortest-path tree. <span class="mark">Typical 6–8 marks</span><br><br>
+<b>Proof:</b> Fix reachable v and choose a simple shortest path p from s to v. It has at most V−1 edges. Across the V−1 full scans, the edges of p are relaxed in path order (at least one more per pass); by the path-relaxation property, d[v]=δ(s,v). Unreachable vertices remain ∞ by the no-path property. With all labels correct, the predecessor-subgraph property gives a shortest-path tree. Finally, triangle inequality ensures no edge can relax in the extra scan, so the algorithm returns TRUE.</div>
+<h3>Small negative-cycle example</h3>
+<p>s→a=1, a→b=2, b→c=−5, c→a=1. The cycle a→b→c→a weighs 2−5+1=−2.</p>
+<table class="tight"><tr><th>After each trip around cycle</th><th>Best known cost to a</th></tr>
+<tr><td>before cycling</td><td>1</td></tr><tr><td>once</td><td>−1</td></tr><tr><td>twice</td><td>−3</td></tr><tr><td>k times</td><td>1−2k → −∞</td></tr></table>
+<div class="box warn"><b>Therefore “shortest” is undefined as a finite value.</b> For any claimed route, one more traversal gives a cheaper one.</div>
+</section>
+
+<section class="page">
+<h2>Choosing the right algorithm</h2>
+<table>
+<tr><th>Problem / restriction</th><th>Algorithm</th><th>Time</th><th>Key reason</th></tr>
+<tr><td>Undirected, connect all vertices cheaply</td><td>Prim or Kruskal</td><td>typically O(E log V)</td><td>MST, not path distance</td></tr>
+<tr><td>SSSP, arbitrary directed graph, negative edges possible</td><td>Bellman–Ford</td><td>Θ(VE)</td><td>detects reachable negative cycles</td></tr>
+<tr><td>SSSP, DAG, even with negative edges</td><td>DAG shortest paths</td><td>Θ(V+E)</td><td>topological order; no cycles</td></tr>
+<tr><td>SSSP, all edge weights nonnegative</td><td>Dijkstra</td><td>O((V+E)log V) typical</td><td>greedy finalization is safe</td></tr>
+<tr><td>Unweighted graph / equal edge weights</td><td>BFS</td><td>Θ(V+E)</td><td>layers equal number of edges</td></tr>
+</table>
+<h3>Prim and Dijkstra look alike—but are not alike</h3>
+<table><tr><th>Question</th><th>Prim</th><th>Dijkstra</th></tr>
+<tr><td>What does key mean?</td><td>cheapest one edge connecting v to current tree</td><td>cheapest total source-to-v path found</td></tr>
+<tr><td>Update</td><td>if w(u,v)&lt;key[v]</td><td>if d[u]+w(u,v)&lt;d[v]</td></tr>
+<tr><td>Output objective</td><td>minimum total spanning-tree weight</td><td>minimum source-to-each-vertex path weights</td></tr>
+<tr><td>Negative edges</td><td>fine</td><td>break greedy finalization</td></tr></table>
+<div class="box tip"><b>Algorithm decision mnemonic:</b> Connect everyone → MST. Paths with no weights → BFS. DAG → topological relaxation. Negative edges → Bellman–Ford. Nonnegative weights → Dijkstra.</div>
+<h3>High-frequency comparison: Prim vs Bellman–Ford</h3>
+<table class="tight"><tr><th></th><th>Prim</th><th>Bellman–Ford</th></tr>
+<tr><td>Graph</td><td>weighted undirected</td><td>weighted directed (or converted undirected)</td></tr>
+<tr><td>Goal</td><td>minimum spanning tree</td><td>single-source shortest paths</td></tr>
+<tr><td>Core operation</td><td>extract minimum key; update attachment edges</td><td>relax every edge repeatedly</td></tr>
+<tr><td>Proof tool</td><td>cut property / safe edge</td><td>path-relaxation + simple path ≤V−1 edges</td></tr></table>
+</section>
+
+<section class="page">
+<h2>Full-mark answer templates</h2>
+<h3>“Explain Prim’s algorithm with correctness and complexity”</h3>
+<ol>
+<li>State input assumptions: connected, weighted, undirected graph.</li>
+<li>Define key, π, Q, and the greedy choice.</li>
+<li>Write pseudocode with the Q-membership test.</li>
+<li>Give a small extraction/key-update table.</li>
+<li>Prove safety using cut (V−Q,Q).</li>
+<li>State complexity for the requested representation.</li>
+</ol>
+<h3>“Explain Bellman–Ford and prove correctness”</h3>
+<ol>
+<li>State that negative edges are permitted and reachable negative cycles are detected.</li>
+<li>Write initialization, V−1 edge scans, and the extra scan.</li>
+<li>Explain relaxation and predecessor changes.</li>
+<li>Use “simple shortest path has ≤V−1 edges.”</li>
+<li>Invoke path-relaxation property for correctness.</li>
+<li>Use the summed-cycle-inequalities argument for detection.</li>
+<li>State Θ(VE) time and Θ(V) auxiliary space.</li>
+</ol>
+<h3>“What is relaxation?”</h3>
+<div class="answer">Relaxation tests whether reaching v through u improves the current upper bound. If d[v]&gt;d[u]+w(u,v), assign d[v]=d[u]+w(u,v) and π[v]=u. Repeated relaxation propagates correct shortest-path information along paths.</div>
+<h3>Mark-saving habits</h3>
+<ul class="check">
+<li>Write the graph restriction before choosing an algorithm.</li>
+<li>Distinguish ∞ (unreachable) from −∞ (unbounded below).</li>
+<li>For MST, report V−1 chosen edges and their total weight.</li>
+<li>For SSSP, report distances and predecessors.</li>
+<li>In proofs, name the theorem/property you use.</li>
+<li>In dry runs, show failed relaxations only when they explain a key point; always show successful changes.</li>
+</ul>
+</section>
+
+<section class="page">
+<h2>Practice set with compact solutions</h2>
+<div class="answer"><b>1. Can Prim work with negative edge weights?</b><br>Yes. Its cut-property proof requires only weight comparisons. Cycles cannot be repeated because the output is a tree.</div>
+<div class="answer"><b>2. Why is the condition “v∈Q” essential in Prim?</b><br>Without it, the algorithm might change the parent/key of a vertex already fixed inside the tree, corrupting the chosen MST structure.</div>
+<div class="answer"><b>3. Is every edge selected by Prim globally lightest among all unused edges?</b><br>No. It is lightest among edges crossing the current cut (V−Q,Q).</div>
+<div class="answer"><b>4. If Bellman–Ford makes no update on pass 3, must it still do later passes?</b><br>No. A full unchanged scan is a fixed point; later identical scans cannot change any label.</div>
+<div class="answer"><b>5. Why does an unreachable negative cycle not trigger detection?</b><br>Its vertices have d=∞. For its edges, ∞ is not greater than ∞+w under the mathematical convention, so no relaxation occurs.</div>
+<div class="answer"><b>6. Does a negative edge imply a negative cycle?</b><br>No. A cycle needs a closed directed route whose total weight is negative.</div>
+<div class="answer"><b>7. Give a graph where Dijkstra fails but Bellman–Ford succeeds.</b><br>s→a=2, s→b=5, b→a=−10. Dijkstra may finalize a at 2 before discovering s→b→a=−5; Bellman–Ford permits the later correction.</div>
+<div class="answer"><b>8. Prove a subpath of a shortest path is shortest.</b><br>If the subpath were replaceable by a cheaper one, replacing it would make the whole path cheaper, a contradiction.</div>
+<div class="answer"><b>9. What differs when Bellman–Ford’s edge order changes?</b><br>Intermediate pass values and how quickly they converge can differ. Final finite distances and negative-cycle verdict do not.</div>
+<div class="answer"><b>10. Can a predecessor tree be unique when shortest distances are unique?</b><br>Distances are scalar values and may be unique while several equal-weight paths realize them; the predecessor tree need not be unique.</div>
+</section>
+
+<section class="page">
+<h2>Final two-page revision wall</h2>
+<div class="grid2">
+<div>
+<h3>Prim</h3>
+<ul><li>Connected weighted undirected graph.</li><li>Grow one tree from arbitrary root.</li><li>key[v]=cheapest crossing edge to v.</li><li>Extract min key; update outside neighbors.</li><li>Proof: cut respects A; light edge is safe.</li><li>Matrix Θ(V²); binary heap O(E log V).</li></ul>
+<h3>Relaxation</h3>
+<div class="formula">if d[v] &gt; d[u]+w(u,v):<br>d[v]←d[u]+w(u,v), π[v]←u</div>
+<ul><li>d is an upper bound.</li><li>Correctness propagates along shortest-path edges.</li><li>π stores the actual route.</li></ul>
+</div>
+<div>
+<h3>Bellman–Ford</h3>
+<ul><li>Negative directed edges allowed.</li><li>Initialize d[s]=0; all others ∞.</li><li>Relax all E edges for V−1 passes.</li><li>One extra scan detects a reachable negative cycle.</li><li>Proof: simple shortest path ≤V−1 edges + path relaxation.</li><li>Time Θ(VE); auxiliary space Θ(V).</li></ul>
+<h3>Distance meanings</h3>
+<ul><li>finite: shortest path exists</li><li>∞: unreachable</li><li>−∞: reachable negative cycle can lead to vertex</li></ul>
+</div>
+</div>
+<h3>Proof map</h3>
+<table class="tight"><tr><th>Claim</th><th>Tool</th><th>One decisive sentence</th></tr>
+<tr><td>Prim is correct</td><td>cut property</td><td>minimum key gives a light edge across (V−Q,Q)</td></tr>
+<tr><td>Relaxation reaches truth</td><td>convergence</td><td>correct u plus shortest-path edge makes v correct</td></tr>
+<tr><td>Bellman–Ford is correct</td><td>path relaxation</td><td>V−1 passes cover every edge of a simple shortest path</td></tr>
+<tr><td>Negative cycle detected</td><td>sum inequalities</td><td>if no cycle edge relaxed, summing would imply cycle weight ≥0</td></tr></table>
+<div class="box exam"><b>Last-minute rule:</b> Do not memorize only pseudocode. For every algorithm know: input restriction, state meaning, greedy/relaxation step, invariant, proof tool, output, and complexity.</div>
+</section>
+
+<section class="page">
+<h2>Final self-test</h2>
+<p>Close the note and answer aloud. If any answer takes longer than 30 seconds, revisit the named section.</p>
+<ol>
+<li>What exactly does key[v] mean in Prim?</li>
+<li>Which cut proves Prim’s chosen edge safe?</li>
+<li>Why is Prim not Dijkstra?</li>
+<li>State relaxation without looking.</li>
+<li>What are the three possible meanings of δ(s,v)?</li>
+<li>Why can a shortest path be assumed to have at most V−1 edges?</li>
+<li>Why does Bellman–Ford need V−1 passes?</li>
+<li>Why does an extra successful relaxation prove a negative cycle?</li>
+<li>Why must that negative cycle be reachable from s?</li>
+<li>State Bellman–Ford time and auxiliary space.</li>
+<li>What changes if edge order changes?</li>
+<li>How do you reconstruct a path from π?</li>
+</ol>
+<div class="box tip"><b>Professor’s closing advice:</b> In an exam, a clean invariant and a labelled dry-run table beat a page of vague narration. Show the state, show the legal update, and name the theorem that makes it safe.</div>
+<h3>Source alignment</h3>
+<p class="small muted">Primary local reference: Cormen, Leiserson, Rivest and Stein, <i>Introduction to Algorithms</i>, 3rd ed., §23.1–23.2 and Chapter 24 introduction, §24.1, and shortest-path properties in §24.5. Lecture placement was inferred from the supplied CSE 207 Lecture 01, 02, 06, 07 and 08 files. Diagrams and wording in this note are original teaching material.</p>
+</section>
+
+</body>
+</html>

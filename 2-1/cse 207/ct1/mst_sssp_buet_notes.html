@@ -1,0 +1,824 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>MST & SSSP — BUET Exam Notes</title>
+<style>
+@page{size:A4;margin:14mm 13mm 15mm;@bottom-center{content:"CSE 207 • MST & SSSP  |  " counter(page);font:8pt Arial;color:#64748b}}
+*{box-sizing:border-box} body{font-family:"Segoe UI",Arial,sans-serif;color:#172033;margin:0;font-size:10.1pt;line-height:1.42}
+h1,h2,h3,h4{font-family:Georgia,serif;color:#12355b;margin:.4em 0 .28em;line-height:1.15} h1{font-size:31pt} h2{font-size:20pt;border-bottom:2px solid #1d8a99;padding-bottom:4px} h3{font-size:14.5pt;color:#145c69} h4{font-size:11.5pt}
+p{margin:.25em 0 .5em} ul,ol{margin:.25em 0 .6em;padding-left:20px} li{margin:.12em 0}
+.cover{height:268mm;display:flex;flex-direction:column;justify-content:center;padding:15mm;background:linear-gradient(145deg,#0b2545 0 54%,#0f6e78 54%);color:white;page-break-after:always}
+.cover h1{color:white;font-size:36pt}.cover .kicker{letter-spacing:3px;text-transform:uppercase;color:#8de0d7;font-weight:700}.cover .sub{font-size:17pt;max-width:135mm}.cover .tag{margin-top:22mm;border-left:5px solid #f6c453;padding:8px 14px;background:#ffffff13}.cover .foot{margin-top:auto;color:#d8eef0}
+.page{page-break-before:always}.avoid{break-inside:avoid}.cols{columns:2;column-gap:10mm}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.box{border-left:5px solid #16869a;background:#eaf7f7;padding:8px 11px;margin:7px 0;break-inside:avoid}.box strong:first-child{color:#075985}.warn{border-color:#e66d3f;background:#fff3eb}.tip{border-color:#d1a228;background:#fff9df}.proof{border-color:#7157a8;background:#f5f1ff}.exam{border-color:#16834a;background:#edf9f1}
+.label{font-size:8pt;text-transform:uppercase;letter-spacing:1.1px;font-weight:800;display:block;margin-bottom:2px}
+table{width:100%;border-collapse:collapse;margin:6px 0 10px;font-size:8.8pt;break-inside:avoid} th{background:#12355b;color:white;text-align:left} th,td{padding:5px 6px;border:1px solid #cbd5e1;vertical-align:top} tr:nth-child(even) td{background:#f5f8fb}
+code,pre{font-family:Consolas,monospace}.algo{background:#0d223b;color:#e5f4ff;border-radius:5px;padding:8px 11px;font-size:8.6pt;line-height:1.35;white-space:pre-wrap;break-inside:avoid}.algo b{color:#78e0d3}
+.formula{font-family:Georgia,serif;text-align:center;font-size:13pt;background:#f3f7fa;border:1px solid #cbd5e1;padding:7px;margin:6px 0}
+.fig{border:1px solid #ccd7e1;border-radius:5px;padding:6px;margin:7px 0;background:white;text-align:center;break-inside:avoid}.caption{font-size:8.2pt;color:#526579;margin-top:3px}.node{fill:#fff;stroke:#12355b;stroke-width:2}.chosen{stroke:#0e9488;stroke-width:4}.bad{stroke:#dc4c3f;stroke-width:4}.edge{stroke:#6b7c8f;stroke-width:2}.dash{stroke-dasharray:5 4}.wt{font:700 12px Arial;fill:#263548}.nt{font:700 13px Arial;fill:#12355b}.small{font-size:8.4pt}.muted{color:#607085}.pill{display:inline-block;padding:2px 7px;border-radius:12px;background:#d9f1ef;color:#075d59;font-weight:700;font-size:8pt}
+.toc a{color:#12355b;text-decoration:none}.check li{list-style:"□  "}.tight td,.tight th{padding:3px 5px}.revision{page-break-before:always;font-size:8.7pt;line-height:1.28}.revision h2{font-size:17pt}.revision h3{font-size:12pt}.revision .box{padding:5px 8px;margin:4px 0}.revision table{font-size:7.7pt;margin:4px 0}.revision .algo{font-size:7.5pt;padding:5px 7px}
+</style>
+</head>
+<body>
+<section class="cover">
+  <div class="kicker">BUET CSE 207 • Exam Edition</div>
+  <h1>Minimum Spanning Trees<br>& Single-Source<br>Shortest Paths</h1>
+  <div class="sub">A concept-first, proof-aware, dry-run-heavy guide for a 2–3 hour complete revision.</div>
+  <div class="tag"><b>Inside:</b> graph foundations • generic MST • Kruskal • Prim • second-best MST • relaxation • Dijkstra • Bellman–Ford • DAG shortest paths • difference constraints • negative cycles • formal properties and proofs • exam/viva bank • five-page final revision</div>
+  <div class="foot">Prepared from the scope of CLRS, 3rd ed., Chapters 23–24 • Original diagrams and exam-focused explanations</div>
+</section>
+
+<section>
+<h2>How to use this note</h2>
+<div class="grid3">
+ <div class="box"><span class="label">First 60 min</span>Read Graph Basics, MST properties, Kruskal and Prim. Redraw one dry run.</div>
+ <div class="box tip"><span class="label">Next 60 min</span>Master relaxation, Dijkstra, Bellman–Ford and DAG-SP. Trace the tables.</div>
+ <div class="box exam"><span class="label">Final 30 min</span>Attempt the viva/theory prompts, then use the five revision pages only.</div>
+</div>
+<div class="box warn"><span class="label">Notation</span><b>V</b> = vertices, <b>E</b> = edges, <b>w(u,v)</b> = edge weight, <b>δ(s,v)</b> = true shortest-path weight, <b>d[v]</b> = current estimate, <b>π[v]</b> = parent/predecessor. “∞” means not yet reachable.</div>
+<h3>Contents</h3>
+<div class="toc grid2">
+<ol>
+ <li>Graph basics and representations</li><li>MST definition, properties, cut/cycle rules</li>
+ <li>Kruskal and disjoint sets</li><li>Prim and priority queues</li>
+ <li>Second-best MST</li><li>SSSP framework and relaxation</li>
+</ol>
+<ol start="7">
+ <li>Dijkstra and negative-edge failure</li><li>Bellman–Ford and negative cycles</li>
+ <li>DAG paths and difference constraints</li><li>Formal properties and master comparisons</li>
+ <li>Exam/viva preparation</li><li>Five-page ultra-condensed revision</li>
+</ol>
+</div>
+<h3>One picture: do not confuse the two problems</h3>
+<table><tr><th>Problem</th><th>What is minimized?</th><th>Output</th><th>Typical algorithms</th></tr>
+<tr><td><b>MST</b></td><td>Total weight of a tree connecting <i>all</i> vertices</td><td>V−1 undirected edges; no designated source</td><td>Kruskal, Prim</td></tr>
+<tr><td><b>SSSP</b></td><td>Path weight from one source s to each reachable vertex</td><td>Shortest-path tree/forest of predecessor edges</td><td>Dijkstra, Bellman–Ford, DAG-SP</td></tr></table>
+<div class="box warn"><b>Classic trap:</b> an MST path between two vertices need not be their shortest path. MST minimizes the <em>sum of selected tree edges</em>, not every pairwise route.</div>
+</section>
+
+<section class="page">
+<h2>1. Graph basics — the minimum you must own</h2>
+<table>
+<tr><th>Term</th><th>Exam-ready definition</th><th>Key consequence</th></tr>
+<tr><td>Graph</td><td>G=(V,E), vertices plus edges connecting pairs.</td><td>Edges are ordered pairs in directed graphs; unordered in undirected.</td></tr>
+<tr><td>Weighted graph</td><td>Each edge e has numerical weight w(e).</td><td>Weight can mean cost, time, distance, loss; it may be negative in directed SSSP.</td></tr>
+<tr><td>Walk / path</td><td>A walk follows adjacent edges; a simple path repeats no vertex.</td><td>A shortest path can be chosen simple if no reachable negative cycle affects it.</td></tr>
+<tr><td>Cycle</td><td>A closed path with first=last; simple cycle repeats no other vertex.</td><td>A tree has no cycle.</td></tr>
+<tr><td>Connected</td><td>Every pair of vertices has a path (undirected case).</td><td>A spanning tree exists iff the graph is connected.</td></tr>
+<tr><td>Component</td><td>A maximal connected subgraph.</td><td>Disconnected graph → minimum spanning <em>forest</em>.</td></tr>
+<tr><td>Tree / forest</td><td>Connected acyclic undirected graph / disjoint union of trees.</td><td>A tree on |V| vertices has exactly |V|−1 edges.</td></tr>
+<tr><td>Spanning tree</td><td>A subgraph that contains all vertices and is a tree.</td><td>Remove any edge → disconnected; add any non-tree edge → one cycle.</td></tr>
+</table>
+<div class="fig">
+<svg viewBox="0 0 600 170" width="100%" height="155">
+<g class="edge"><line x1="70" y1="45" x2="190" y2="35"/><line x1="70" y1="45" x2="120" y2="130"/><line x1="190" y1="35" x2="120" y2="130"/><line x1="190" y1="35" x2="260" y2="125"/></g>
+<g><circle class="node" cx="70" cy="45" r="18"/><circle class="node" cx="190" cy="35" r="18"/><circle class="node" cx="120" cy="130" r="18"/><circle class="node" cx="260" cy="125" r="18"/><text class="nt" x="65" y="50">a</text><text class="nt" x="185" y="40">b</text><text class="nt" x="115" y="135">c</text><text class="nt" x="255" y="130">d</text></g>
+<g class="edge"><line x1="390" y1="45" x2="500" y2="45"/><line x1="500" y1="45" x2="445" y2="130"/></g>
+<g><circle class="node" cx="390" cy="45" r="18"/><circle class="node" cx="500" cy="45" r="18"/><circle class="node" cx="445" cy="130" r="18"/><circle class="node" cx="570" cy="130" r="18"/></g>
+<text x="105" y="165" class="wt">Connected graph: one component</text><text x="385" y="165" class="wt">Disconnected: two components</text>
+</svg><div class="caption">Figure 1.1 — Connectivity and connected components.</div></div>
+<h3>Representations</h3>
+<table><tr><th>Representation</th><th>Space</th><th>Edge test</th><th>Enumerate neighbors</th><th>Use when</th></tr>
+<tr><td>Adjacency matrix</td><td>Θ(V²)</td><td>Θ(1)</td><td>Θ(V)</td><td>Dense graph; fast edge lookup; simple Prim array implementation.</td></tr>
+<tr><td>Adjacency list</td><td>Θ(V+E)</td><td>Usually O(deg u)</td><td>Θ(deg u)</td><td>Sparse graph; Dijkstra/Prim/BFS/DFS.</td></tr>
+<tr><td>Edge list</td><td>Θ(E)</td><td>Θ(E)</td><td>Θ(E)</td><td>Kruskal and Bellman–Ford: scan every edge.</td></tr></table>
+<div class="box tip"><b>Memory trick:</b> <b>M</b>atrix = <b>M</b>any cells; <b>L</b>ist = only <b>L</b>ive edges; <b>E</b>dge list = algorithms that repeatedly scan <b>E</b>.</div>
+</section>
+
+<section class="page">
+<h2>2. Minimum Spanning Tree: meaning and structure</h2>
+<div class="box"><span class="label">Intuition</span>You must connect every campus building with minimum total cable. Redundant loops waste cable, so an optimum connected solution is a tree.</div>
+<p><b>Formal definition.</b> For a connected, undirected, weighted graph G=(V,E), an MST is a spanning tree T⊆E minimizing <span class="pill">w(T)=Σ<sub>e∈T</sub>w(e)</span>. It has exactly |V|−1 edges.</p>
+<div class="grid2">
+<div><h3>Applications</h3><ul><li>Least-cost roads, fiber, power, pipelines</li><li>Clustering: delete expensive MST edges</li><li>Network broadcast backbones</li><li>Approximation algorithms and image segmentation</li></ul></div>
+<div><h3>Important boundaries</h3><ul><li>MST is normally defined on undirected graphs.</li><li>Negative weights are completely safe.</li><li>Disconnected input produces an MSF, not one MST.</li><li>Weights need not represent geometric distance.</li></ul></div>
+</div>
+<div class="fig">
+<svg viewBox="0 0 600 260" width="100%" height="230">
+<g class="edge"><line class="chosen" x1="70" y1="60" x2="270" y2="40"/><line x1="70" y1="60" x2="160" y2="200"/><line x1="270" y1="40" x2="160" y2="200"/><line class="chosen" x1="270" y1="40" x2="450" y2="75"/><line x1="160" y1="200" x2="450" y2="75"/><line class="chosen" x1="160" y1="200" x2="470" y2="210"/><line x1="450" y1="75" x2="470" y2="210"/></g>
+<g class="wt"><text x="162" y="42">1</text><text x="95" y="130">4</text><text x="205" y="125">3</text><text x="355" y="47">2</text><text x="310" y="145">7</text><text x="310" y="220">2</text><text x="470" y="145">5</text></g>
+<g><circle class="node" cx="70" cy="60" r="19"/><circle class="node" cx="270" cy="40" r="19"/><circle class="node" cx="160" cy="200" r="19"/><circle class="node" cx="450" cy="75" r="19"/><circle class="node" cx="470" cy="210" r="19"/>
+<text class="nt" x="64" y="65">A</text><text class="nt" x="264" y="45">B</text><text class="nt" x="154" y="205">C</text><text class="nt" x="444" y="80">D</text><text class="nt" x="464" y="215">E</text></g>
+</svg><div class="caption">Figure 2.1 — Green edges AB(1), BD(2), CE(2), plus BC(3) form an MST of weight 8.</div></div>
+<h3>Uniqueness</h3>
+<ul><li>If <b>all edge weights are distinct</b>, the MST is unique (sufficient, not necessary).</li><li>Equal weights may permit multiple MSTs, but do not guarantee it.</li><li>All MSTs have the same total weight, even when their edge sets differ.</li></ul>
+<div class="box exam"><b>Fast uniqueness test:</b> in Kruskal, if at some weight level different non-cycling choices can connect the same current components, alternative MSTs may exist. Formal testing groups equal-weight edges before union.</div>
+</section>
+
+<section class="page">
+<h2>3. The greedy foundation: cut, light, safe, cycle</h2>
+<h3>Cut property</h3>
+<p>A <b>cut</b> (S,V−S) partitions the vertices. An edge <b>crosses</b> the cut if its endpoints lie on opposite sides. A <b>light edge</b> is a minimum-weight crossing edge.</p>
+<div class="box"><b>Cut property.</b> Let A be a subset of some MST. If a cut respects A (no edge of A crosses it), then any light edge crossing that cut is <b>safe</b> for A: adding it preserves the possibility of completing A to an MST.</div>
+<div class="fig">
+<svg viewBox="0 0 600 220" width="100%" height="195">
+<path d="M300,10 C260,70 345,140 290,210" fill="none" stroke="#e06b42" stroke-width="3" stroke-dasharray="8 5"/>
+<g class="edge"><line x1="90" y1="55" x2="170" y2="165"/><line x1="170" y1="165" x2="430" y2="170"/><line x1="90" y1="55" x2="420" y2="55"/><line class="chosen" x1="170" y1="165" x2="420" y2="55"/></g>
+<g class="wt"><text x="125" y="105">A-edge</text><text x="295" y="176">7</text><text x="255" y="48">8</text><text x="295" y="105">3 (light)</text></g>
+<g><circle class="node" cx="90" cy="55" r="18"/><circle class="node" cx="170" cy="165" r="18"/><circle class="node" cx="420" cy="55" r="18"/><circle class="node" cx="430" cy="170" r="18"/></g>
+<text x="85" y="210" class="wt">S</text><text x="480" y="210" class="wt">V−S</text>
+</svg><div class="caption">Figure 3.1 — Dashed line is a cut respecting A. Weight-3 crossing edge is light and therefore safe.</div></div>
+<h3>Why the safe edge works: exchange argument</h3>
+<ol><li>Take an MST T that contains current edges A.</li><li>If T already contains light edge (u,v), done.</li><li>Otherwise adding (u,v) to T creates exactly one cycle.</li><li>That cycle crosses the cut again through some edge (x,y).</li><li>Because (u,v) is light, w(u,v)≤w(x,y). Replace (x,y) by (u,v); the result is still a spanning tree and no heavier. Hence it is also an MST containing A∪{(u,v)}.</li></ol>
+<div class="grid2">
+<div class="box tip"><b>Light edge</b> is relative to a particular cut: minimum among crossing edges.</div>
+<div class="box"><b>Safe edge</b> is relative to current partial solution A: it can be added without losing all MST completions.</div>
+</div>
+<h3>The CLRS generic MST framework</h3>
+<pre class="algo"><b>GENERIC-MST(G,w)</b>
+A ← ∅
+while A does not form a spanning tree:
+    find an edge (u,v) that is safe for A
+    A ← A ∪ {(u,v)}
+return A</pre>
+<p><b>Loop invariant:</b> before every iteration, A is contained in some MST. Initially A=∅. A safe edge preserves the invariant; after V−1 additions A itself is an MST. Kruskal and Prim differ only in how they choose a safe edge.</p>
+<h3>Cycle property</h3>
+<div class="box proof"><b>Cycle property.</b> If an edge is strictly heavier than every other edge on a cycle, it belongs to no MST. More generally, there exists an MST excluding any maximum-weight cycle edge.</div>
+<p><b>Intuition:</b> delete the heaviest edge; the remaining cycle path still connects its endpoints and is no more expensive.</p>
+<div class="box warn"><b>Wording trap:</b> with tied maximum weights, do not say “the edge is in no MST.” Say “there is an MST that excludes it.” Strictly unique heaviest gives the stronger claim.</div>
+</section>
+
+<section class="page">
+<h2>4. Kruskal’s algorithm</h2>
+<div class="box"><span class="label">Core idea</span>Build a forest. Consider edges globally from lightest to heaviest; accept an edge exactly when it joins two different components.</div>
+<pre class="algo"><b>KRUSKAL(G,w)</b>
+A ← ∅
+for each vertex v ∈ G.V: MAKE-SET(v)
+sort G.E into nondecreasing order by weight
+for each edge (u,v) in sorted order:
+    if FIND-SET(u) ≠ FIND-SET(v):
+        A ← A ∪ {(u,v)}
+        UNION(u,v)
+return A</pre>
+<h3>Dry run on Figure 2.1</h3>
+<table class="tight"><tr><th>Order</th><th>Edge</th><th>Action</th><th>Forest components after action</th></tr>
+<tr><td>1</td><td>AB(1)</td><td>Take</td><td>{AB}{C}{D}{E}</td></tr>
+<tr><td>2</td><td>BD(2)</td><td>Take</td><td>{ABD}{C}{E}</td></tr>
+<tr><td>3</td><td>CE(2)</td><td>Take</td><td>{ABD}{CE}</td></tr>
+<tr><td>4</td><td>BC(3)</td><td>Take</td><td>{ABCDE}; now V−1 edges, stop</td></tr>
+<tr><td>5+</td><td>AC(4), DE(5), CD(7)</td><td>Would reject</td><td>Endpoints already connected</td></tr></table>
+<div class="fig">
+<svg viewBox="0 0 630 200" width="100%" height="180">
+<g transform="translate(0,0)"><line class="chosen" x1="45" y1="65" x2="125" y2="65"/><circle class="node" cx="45" cy="65" r="15"/><circle class="node" cx="125" cy="65" r="15"/><circle class="node" cx="185" cy="65" r="15"/><circle class="node" cx="245" cy="65" r="15"/><circle class="node" cx="305" cy="65" r="15"/><text x="15" y="125" class="wt">1. AB</text></g>
+<g transform="translate(315,0)"><line class="chosen" x1="30" y1="65" x2="100" y2="65"/><line class="chosen" x1="100" y1="65" x2="165" y2="65"/><line class="chosen" x1="220" y1="65" x2="285" y2="65"/><g><circle class="node" cx="30" cy="65" r="15"/><circle class="node" cx="100" cy="65" r="15"/><circle class="node" cx="165" cy="65" r="15"/><circle class="node" cx="220" cy="65" r="15"/><circle class="node" cx="285" cy="65" r="15"/></g><text x="55" y="125" class="wt">2–3. BD, CE</text></g>
+<text x="130" y="175" class="wt">Components merge until one tree remains</text>
+</svg><div class="caption">Figure 4.1 — Union–Find tracks components; it does not store the final MST shape.</div></div>
+<h3>Why it works</h3>
+<p>Before accepting (u,v), its endpoints lie in two components. The cut “vertices in u’s component versus everything else” respects A. Since all lighter candidates have already been processed, (u,v) is a light crossing edge; by the cut property it is safe.</p>
+<h3>Complexity</h3>
+<div class="formula">sorting: O(E lg E) = O(E lg V) &nbsp; + &nbsp; DSU: O(E α(V)) &nbsp; ⇒ &nbsp; <b>O(E lg V)</b></div>
+<p>Space: O(V) auxiliary for DSU plus O(E) to store/sort edges. α is inverse Ackermann, effectively constant.</p>
+</section>
+
+<section class="page">
+<h2>5. Disjoint Set Union (Union–Find)</h2>
+<div class="grid2">
+<div><h3>Operations</h3><ul><li><b>MAKE-SET(x):</b> singleton component.</li><li><b>FIND-SET(x):</b> return representative/root.</li><li><b>UNION(x,y):</b> merge roots if different.</li></ul></div>
+<div><h3>Two optimizations</h3><ul><li><b>Union by rank/size:</b> attach shorter tree below taller.</li><li><b>Path compression:</b> during FIND, point visited nodes directly to root.</li></ul></div>
+</div>
+<pre class="algo"><b>FIND(x)</b>
+if parent[x] ≠ x: parent[x] ← FIND(parent[x])   // compression
+return parent[x]
+
+<b>UNION(x,y)</b>
+rx ← FIND(x); ry ← FIND(y)
+if rx = ry: return
+if rank[rx] &lt; rank[ry]: parent[rx] ← ry
+else: parent[ry] ← rx
+      if rank[rx] = rank[ry]: rank[rx]++</pre>
+<div class="fig">
+<svg viewBox="0 0 620 230" width="100%" height="205">
+<text x="55" y="20" class="wt">Before FIND(e)</text><g class="edge"><line x1="90" y1="55" x2="90" y2="105"/><line x1="90" y1="105" x2="55" y2="160"/><line x1="55" y1="160" x2="55" y2="205"/><line x1="90" y1="105" x2="135" y2="160"/></g>
+<g><circle class="node" cx="90" cy="45" r="15"/><circle class="node" cx="90" cy="100" r="15"/><circle class="node" cx="55" cy="155" r="15"/><circle class="node" cx="55" cy="205" r="15"/><circle class="node" cx="135" cy="155" r="15"/></g>
+<g class="nt"><text x="85" y="50">a</text><text x="85" y="105">b</text><text x="50" y="160">c</text><text x="50" y="210">e</text><text x="130" y="160">d</text></g>
+<text x="380" y="20" class="wt">After FIND(e)</text><g class="edge"><line x1="440" y1="55" x2="380" y2="120"/><line x1="440" y1="55" x2="440" y2="120"/><line x1="440" y1="55" x2="500" y2="120"/><line x1="440" y1="55" x2="550" y2="120"/></g>
+<g><circle class="node" cx="440" cy="45" r="15"/><circle class="node" cx="380" cy="120" r="15"/><circle class="node" cx="440" cy="120" r="15"/><circle class="node" cx="500" cy="120" r="15"/><circle class="node" cx="550" cy="120" r="15"/></g>
+<g class="nt"><text x="435" y="50">a</text><text x="375" y="125">b</text><text x="435" y="125">c</text><text x="495" y="125">e</text><text x="545" y="125">d</text></g>
+</svg><div class="caption">Figure 5.1 — Path compression flattens the route e→c→b→a to e→a (and also c→a).</div></div>
+<div class="box exam"><b>Amortized language matters:</b> m operations with both optimizations take O(m α(V)), not necessarily constant worst-case per individual operation.</div>
+<h3>Kruskal: strengths, weaknesses, traps</h3>
+<table><tr><th>Strengths</th><th>Weaknesses</th><th>Common mistakes</th></tr>
+<tr><td>Excellent for sparse graphs; natural edge list; easily gives MSF; simple correctness proof.</td><td>Must sort all edges; less natural when graph arrives only as dense matrix.</td><td>Using DFS cycle test each time; unioning vertices rather than roots; stopping before V−1 accepted edges; rejecting equal weights automatically; applying to directed graph.</td></tr></table>
+</section>
+
+<section class="page">
+<h2>6. Prim’s algorithm</h2>
+<div class="box"><span class="label">Core idea</span>Grow one tree from an arbitrary root. At every step, attach the outside vertex with the cheapest edge into the current tree.</div>
+<p><b>key[v]</b> = cheapest known crossing edge from the current tree to v. <b>parent[v]</b> stores that edge’s tree endpoint. The min-priority queue contains vertices not yet finalized.</p>
+<pre class="algo"><b>PRIM(G,w,r)</b>
+for each u ∈ V: key[u] ← ∞; parent[u] ← NIL
+key[r] ← 0; Q ← V
+while Q ≠ ∅:
+    u ← EXTRACT-MIN(Q)
+    for each v ∈ Adj[u]:
+        if v ∈ Q and w(u,v) &lt; key[v]:
+            parent[v] ← u
+            key[v] ← w(u,v)
+            DECREASE-KEY(Q,v,key[v])
+return {(parent[v],v) : v ≠ r}</pre>
+<h3>Dry run (start A) on Figure 2.1</h3>
+<table class="tight"><tr><th>Extract</th><th>Relax/update keys</th><th>Chosen edge</th><th>Keys after step (unseen only)</th></tr>
+<tr><td>A:0</td><td>B←1, C←4</td><td>—</td><td>B1, C4, D∞, E∞</td></tr>
+<tr><td>B:1</td><td>C←3, D←2</td><td>AB</td><td>D2, C3, E∞</td></tr>
+<tr><td>D:2</td><td>E←5; C stays 3</td><td>BD</td><td>C3, E5</td></tr>
+<tr><td>C:3</td><td>E←2</td><td>BC</td><td>E2</td></tr>
+<tr><td>E:2</td><td>—</td><td>CE</td><td>done; total 8</td></tr></table>
+<div class="fig">
+<svg viewBox="0 0 620 145" width="100%" height="130">
+<g class="edge"><line class="chosen" x1="55" y1="70" x2="165" y2="70"/><line class="chosen" x1="165" y1="70" x2="275" y2="70"/><line class="chosen" x1="275" y1="70" x2="385" y2="70"/><line class="chosen" x1="385" y1="70" x2="495" y2="70"/></g>
+<g><circle class="node" cx="55" cy="70" r="20"/><circle class="node" cx="165" cy="70" r="20"/><circle class="node" cx="275" cy="70" r="20"/><circle class="node" cx="385" cy="70" r="20"/><circle class="node" cx="495" cy="70" r="20"/></g>
+<g class="nt"><text x="48" y="75">A</text><text x="158" y="75">B</text><text x="268" y="75">D</text><text x="378" y="75">C</text><text x="488" y="75">E</text></g>
+<g class="wt"><text x="103" y="58">1</text><text x="213" y="58">2</text><text x="323" y="58">3</text><text x="433" y="58">2</text></g>
+<text x="180" y="132" class="wt">Extraction order ≠ sorted edge order</text>
+</svg><div class="caption">Figure 6.1 — Prim maintains a frontier around one growing tree.</div></div>
+<h3>Why it works</h3>
+<p>At every iteration, the cut is “vertices already extracted” versus “vertices still in Q.” It respects chosen tree edges. The minimum key is a light edge crossing this cut, so the cut property makes it safe.</p>
+</section>
+
+<section class="page">
+<h2>7. Prim implementations and Kruskal comparison</h2>
+<table><tr><th>Prim implementation</th><th>Extract-min</th><th>Decrease-key/update</th><th>Total</th><th>Best fit</th></tr>
+<tr><td>Adjacency matrix + array</td><td>O(V), repeated V</td><td>O(1)</td><td><b>O(V²)</b></td><td>Dense graph</td></tr>
+<tr><td>Adjacency list + binary heap</td><td>O(lg V)</td><td>O(lg V), up to E</td><td><b>O(E lg V)</b></td><td>Sparse graph, practical default</td></tr>
+<tr><td>Adjacency list + Fibonacci heap</td><td>O(lg V) amortized</td><td>O(1) amortized</td><td><b>O(E+V lg V)</b></td><td>Theoretical bound</td></tr></table>
+<div class="box warn"><b>Priority-queue trap:</b> Prim’s priority is the cheapest <em>single connecting edge</em> key[v], not the accumulated root-to-v distance. Accumulated distance is Dijkstra.</div>
+<h3>Kruskal vs Prim</h3>
+<table>
+<tr><th>Feature</th><th>Kruskal</th><th>Prim</th></tr>
+<tr><td>Growth</td><td>Many components merge (forest)</td><td>One connected tree grows</td></tr>
+<tr><td>Greedy choice</td><td>Globally lightest edge joining different components</td><td>Lightest edge leaving current tree</td></tr>
+<tr><td>Primary structure</td><td>Sorted edge list + DSU</td><td>Adjacency structure + min-priority queue</td></tr>
+<tr><td>Typical time</td><td>O(E lg V)</td><td>O(E lg V) heap; O(V²) array</td></tr>
+<tr><td>Sparse/dense</td><td>Usually excellent sparse</td><td>Heap sparse; matrix/array excellent dense</td></tr>
+<tr><td>Disconnected input</td><td>Naturally returns MSF</td><td>Restart per component for MSF</td></tr>
+<tr><td>Sorting</td><td>Required</td><td>Not required</td></tr>
+<tr><td>Memory emphasis</td><td>All edges + O(V) DSU</td><td>Adjacency + O(V) keys/parents/heap</td></tr>
+</table>
+<h3>Prim common mistakes</h3>
+<ul><li>Updating an already extracted vertex; forgetting the v∈Q test.</li><li>Adding the root’s NIL parent as an edge.</li><li>Summing keys before they are final; sum chosen/final key values only.</li><li>Using a max-heap, or failing to implement decrease-key (lazy duplicates are fine if stale entries are skipped).</li><li>Claiming the starting root changes optimal weight; it may change which MST appears under ties, never the optimum value.</li></ul>
+<div class="box exam"><b>Maximum-mark answer skeleton:</b> (1) one-line idea, (2) pseudocode, (3) invariant/cut property, (4) complexity by data structure, (5) one dry-run table. This structure works for both MST algorithms.</div>
+</section>
+
+<section class="page">
+<h2>8. Second-best MST</h2>
+<p><b>Definition.</b> A spanning tree whose total weight is the smallest value strictly greater than the MST weight. Some courses use “different from T” even if equal; state your convention.</p>
+<div class="box"><span class="label">Key exchange idea</span>Fix an MST T. Add a non-tree edge e=(u,v). It creates one cycle. Delete one edge f on the unique u–v path in T. To obtain the cheapest tree containing e, delete the maximum-weight edge on that path.</div>
+<div class="formula">candidate(e) = w(T) + w(e) − maxWeightOnPath<sub>T</sub>(u,v)</div>
+<pre class="algo"><b>SECOND-BEST-MST(G)</b>
+T ← MST(G); best ← ∞
+for each non-tree edge e=(u,v):
+    f ← maximum-weight edge on unique path u→v in T
+    candidate ← w(T) + w(e) − w(f)
+    if candidate &gt; w(T): best ← min(best,candidate) // strict convention
+return best and corresponding exchange (e,f)</pre>
+<div class="fig">
+<svg viewBox="0 0 620 220" width="100%" height="195">
+<g class="edge"><line class="chosen" x1="90" y1="110" x2="240" y2="45"/><line class="chosen" x1="240" y1="45" x2="410" y2="55"/><line class="chosen" x1="410" y1="55" x2="500" y2="165"/><line class="bad dash" x1="90" y1="110" x2="500" y2="165"/></g>
+<g class="wt"><text x="155" y="65">2</text><text x="320" y="40">5 ← delete</text><text x="455" y="105">3</text><text x="285" y="162">6 ← add</text></g>
+<g><circle class="node" cx="90" cy="110" r="18"/><circle class="node" cx="240" cy="45" r="18"/><circle class="node" cx="410" cy="55" r="18"/><circle class="node" cx="500" cy="165" r="18"/></g>
+<text x="145" y="210" class="wt">If w(T)=10, candidate=10+6−5=11</text>
+</svg><div class="caption">Figure 8.1 — Add a non-tree edge, then remove the heaviest tree edge on the resulting cycle.</div></div>
+<h3>Complexity</h3>
+<ul><li>Simple: for each of O(E) non-tree edges, DFS the tree in O(V): <b>O(EV)</b> after MST.</li><li>Advanced: preprocess binary lifting/LCA for maximum-on-path queries in O(V lg V), then O(lg V) each: <b>O(E lg V)</b> overall.</li></ul>
+<div class="box warn"><b>Ties:</b> If candidate equals w(T), you found another MST, not a strictly second-best tree. For the strict version, find the smallest positive increase; tied path maxima may require careful alternate-edge handling.</div>
+</section>
+
+<section class="page">
+<h2>9. SSSP foundation: paths, estimates, relaxation</h2>
+<div class="box"><span class="label">Intuition</span>Place a tentative price tag d[v] on each vertex. Relaxation asks: “Would reaching v through u be cheaper than my current tag?” If yes, lower the tag and remember u.</div>
+<p>For directed weighted G=(V,E), source s, the true shortest-path value is:</p>
+<div class="formula">δ(s,v) = min{ w(p) : p is a path s→v }; &nbsp; δ(s,v)=∞ if unreachable</div>
+<p>If a reachable negative cycle can reach v, path weights can decrease without bound; conventionally δ(s,v)=−∞ and no finite shortest path exists.</p>
+<pre class="algo"><b>INITIALIZE-SINGLE-SOURCE(G,s)</b>
+for each v ∈ V: d[v] ← ∞; parent[v] ← NIL
+d[s] ← 0
+
+<b>RELAX(u,v,w)</b>
+if d[v] &gt; d[u] + w(u,v):
+    d[v] ← d[u] + w(u,v)
+    parent[v] ← u</pre>
+<div class="fig">
+<svg viewBox="0 0 620 170" width="100%" height="150">
+<defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#607085"/></marker></defs>
+<line x1="120" y1="80" x2="430" y2="80" class="edge" marker-end="url(#arr)"/><text x="270" y="65" class="wt">w(u,v)=4</text>
+<circle class="node" cx="100" cy="80" r="28"/><circle class="node" cx="460" cy="80" r="28"/>
+<text x="72" y="85" class="nt">u: 7</text><text x="425" y="85" class="nt">v: 15</text>
+<text x="170" y="130" class="wt">7+4=11 &lt; 15 ⇒ d[v]←11, parent[v]←u</text>
+</svg><div class="caption">Figure 9.1 — One relaxation improves an upper bound; it need not finalize it.</div></div>
+<h3>Path reconstruction</h3>
+<p>Follow parent pointers backward v→parent[v]→…→s, then reverse. If d[v]=∞, v is unreachable. The parent subgraph is a shortest-path tree only after the algorithm’s correctness conditions hold.</p>
+<h3>Core properties worth quoting</h3>
+<ul><li><b>Upper-bound:</b> always d[v]≥δ(s,v); relaxation never invents a path.</li><li><b>Triangle inequality:</b> δ(s,v)≤δ(s,u)+w(u,v).</li><li><b>Convergence:</b> if s→u is already correct and (u,v) is the next edge of a shortest path, relaxing it makes v correct.</li><li><b>Path relaxation:</b> relaxing edges of a shortest path in order makes its endpoint correct.</li></ul>
+</section>
+
+<section class="page">
+<h2>10. Dijkstra’s algorithm</h2>
+<div class="box"><span class="label">When valid</span>All edge weights reachable from the source must be nonnegative. Then the unsettled vertex with smallest estimate can never later receive a cheaper route.</div>
+<pre class="algo"><b>DIJKSTRA(G,w,s)</b>
+initialize d and parent; d[s] ← 0
+Q ← min-priority queue containing (0,s)
+while Q not empty:
+    (du,u) ← EXTRACT-MIN(Q)
+    if du ≠ d[u]: continue              // skip stale lazy entry
+    for each edge (u,v):
+        if d[v] &gt; d[u] + w(u,v):
+            d[v] ← d[u] + w(u,v)
+            parent[v] ← u
+            push (d[v],v) into Q</pre>
+<div class="fig">
+<svg viewBox="0 0 620 270" width="100%" height="235">
+<defs><marker id="a2" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#607085"/></marker></defs>
+<g class="edge" marker-end="url(#a2)"><line x1="75" y1="120" x2="205" y2="55"/><line x1="75" y1="120" x2="205" y2="205"/><line x1="235" y1="55" x2="390" y2="55"/><line x1="230" y1="190" x2="390" y2="75"/><line x1="230" y1="205" x2="410" y2="205"/><line x1="420" y1="80" x2="430" y2="180"/><line x1="235" y1="55" x2="215" y2="180"/></g>
+<g class="wt"><text x="130" y="75">4</text><text x="130" y="175">1</text><text x="310" y="43">1</text><text x="305" y="123">2</text><text x="315" y="220">5</text><text x="435" y="135">3</text><text x="210" y="120">2</text></g>
+<g><circle class="node" cx="60" cy="120" r="20"/><circle class="node" cx="220" cy="50" r="20"/><circle class="node" cx="220" cy="205" r="20"/><circle class="node" cx="410" cy="55" r="20"/><circle class="node" cx="430" cy="205" r="20"/></g>
+<g class="nt"><text x="54" y="125">s</text><text x="214" y="55">a</text><text x="214" y="210">b</text><text x="404" y="60">c</text><text x="424" y="210">d</text></g>
+</svg><div class="caption">Figure 10.1 — Dijkstra example. Directed edges: s→a4, s→b1, b→a2, a→c1, b→c2, b→d5, c→d3.</div></div>
+<table class="tight"><tr><th>Settled</th><th>Updates</th><th>d[s,a,b,c,d]</th><th>Queue snapshot</th></tr>
+<tr><td>s(0)</td><td>a=4, b=1</td><td>[0,4,1,∞,∞]</td><td>(1,b),(4,a)</td></tr>
+<tr><td>b(1)</td><td>a=3,c=3,d=6</td><td>[0,3,1,3,6]</td><td>(3,a),(3,c),(4,a stale),(6,d)</td></tr>
+<tr><td>a(3)</td><td>c stays 3</td><td>[0,3,1,3,6]</td><td>(3,c),(4 stale),(6,d)</td></tr>
+<tr><td>c(3)</td><td>d stays 6 (tie)</td><td>[0,3,1,3,6]</td><td>(6,d)</td></tr>
+<tr><td>d(6)</td><td>—</td><td>final</td><td>empty</td></tr></table>
+</section>
+
+<section class="page">
+<h2>11. Dijkstra: proof, complexity, and traps</h2>
+<h3>Proof intuition — first wrong vertex contradiction</h3>
+<ol><li>Assume u is the first extracted vertex whose estimate is not the true shortest distance.</li><li>On a shortest s→u path, let y be the first not-yet-extracted vertex; x immediately before it is settled.</li><li>When x was processed, relaxation ensured d[y]=δ(s,y) (or no larger).</li><li>With nonnegative remaining edges, δ(s,y)≤δ(s,u).</li><li>Because u had minimum queue key, d[u]≤d[y]≤δ(s,u), while upper-bound gives d[u]≥δ(s,u). Thus equality—a contradiction.</li></ol>
+<div class="box proof"><b>The load-bearing assumption:</b> nonnegative weights ensure a path cannot get cheaper after y. Without it, the greedy “finalize minimum” step breaks.</div>
+<h3>Complexity</h3>
+<table><tr><th>Implementation</th><th>Time</th><th>Notes</th></tr>
+<tr><td>Array + adjacency matrix</td><td>O(V²)</td><td>Good dense graph; scan to find minimum.</td></tr>
+<tr><td>Binary heap + adjacency list</td><td>O((V+E)lg V), usually O(E lg V)</td><td>Practical sparse default.</td></tr>
+<tr><td>Fibonacci heap</td><td>O(E+V lg V) amortized</td><td>Theoretical improvement.</td></tr>
+</table>
+<p>Space: O(V+E) graph storage and O(V) logical state; lazy-duplicate heaps may temporarily hold O(E) entries.</p>
+<h3>Failure with a negative edge</h3>
+<div class="fig">
+<svg viewBox="0 0 620 210" width="100%" height="185">
+<defs><marker id="a3" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#607085"/></marker></defs>
+<g class="edge" marker-end="url(#a3)"><line x1="90" y1="105" x2="265" y2="50"/><line x1="90" y1="105" x2="265" y2="165"/><line class="bad" x1="295" y1="150" x2="295" y2="75"/></g>
+<g class="wt"><text x="165" y="65">2</text><text x="165" y="155">5</text><text x="310" y="115">−10</text></g>
+<g><circle class="node" cx="70" cy="105" r="22"/><circle class="node" cx="290" cy="45" r="22"/><circle class="node" cx="290" cy="165" r="22"/></g>
+<g class="nt"><text x="64" y="110">s</text><text x="284" y="50">a</text><text x="284" y="170">b</text></g>
+<text x="365" y="80" class="wt">Dijkstra finalizes a at 2.</text><text x="365" y="110" class="wt">But s→b→a = 5−10 = −5.</text><text x="365" y="140" class="wt">Later negative edge repairs a only if</text><text x="365" y="160" class="wt">“finalized” vertices are illegally reopened.</text>
+</svg><div class="caption">Figure 11.1 — A single negative edge can invalidate greedy finalization even without a negative cycle.</div></div>
+<div class="box warn"><b>Common mistakes:</b> using Dijkstra merely because there is no negative cycle; marking visited when inserted rather than extracted; confusing BFS (only unweighted/equal weights); omitting stale-entry handling; assuming negative edges in unreachable components matter (they do not affect this source).</div>
+</section>
+
+<section class="page">
+<h2>12. Bellman–Ford</h2>
+<div class="box"><span class="label">Core idea</span>Do not greedily finalize. Repeatedly relax every edge. After i full passes, all shortest paths using at most i edges are correctly represented.</div>
+<pre class="algo"><b>BELLMAN-FORD(G,w,s)</b>
+initialize d and parent; d[s] ← 0
+for i ← 1 to |V|−1:
+    changed ← false
+    for each edge (u,v) ∈ E:
+        if d[u] ≠ ∞ and d[v] &gt; d[u] + w(u,v):
+            d[v] ← d[u] + w(u,v); parent[v] ← u
+            changed ← true
+    if not changed: break
+for each edge (u,v) ∈ E:
+    if d[u] ≠ ∞ and d[v] &gt; d[u] + w(u,v):
+        report a reachable negative cycle
+return d,parent</pre>
+<h3>Why V−1 passes?</h3>
+<p>With no reachable negative cycle, a shortest path can be simple. A simple path visits at most V vertices and uses at most V−1 edges. Each full pass guarantees progress by at least one edge along such a path (regardless of edge-list order).</p>
+<h3>Pass-level dry run</h3>
+<p>Edges are deliberately ordered poorly: (a,b,−2), (s,a,4), (b,c,3), (s,c,10).</p>
+<table class="tight"><tr><th>Pass</th><th>d[s,a,b,c] after full scan</th><th>Meaning</th></tr>
+<tr><td>0</td><td>[0,∞,∞,∞]</td><td>Initialization</td></tr>
+<tr><td>1</td><td>[0,4,∞,10]</td><td>s→a and s→c known; a→b was scanned too early</td></tr>
+<tr><td>2</td><td>[0,4,2,5]</td><td>a→b then b→c propagate improvements</td></tr>
+<tr><td>3</td><td>[0,4,2,5]</td><td>No change: early stop; no reachable negative cycle</td></tr></table>
+<div class="box tip"><b>In-place nuance:</b> one pass can propagate through multiple edges if the order is favorable. The theorem promises “at least paths of i edges after i passes,” not “exactly one edge per pass.”</div>
+<h3>Complexity and uses</h3>
+<p>Time <b>O(VE)</b>; space <b>O(V)</b> beyond graph storage. Use for reachable negative edges, negative-cycle detection, distance-vector routing, difference constraints, and as a correctness oracle for small tests.</p>
+</section>
+
+<section class="page">
+<h2>13. Negative cycles: detection and meaning</h2>
+<div class="fig">
+<svg viewBox="0 0 620 245" width="100%" height="215">
+<defs><marker id="a4" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#607085"/></marker></defs>
+<g class="edge" marker-end="url(#a4)"><line x1="70" y1="125" x2="205" y2="70"/><line x1="235" y1="70" x2="390" y2="115"/><line x1="390" y1="140" x2="245" y2="190"/><line x1="215" y1="175" x2="215" y2="90"/><line x1="420" y1="130" x2="535" y2="130"/></g>
+<g class="wt"><text x="130" y="78">2</text><text x="310" y="75">1</text><text x="315" y="185">−5</text><text x="228" y="135">1</text><text x="475" y="116">4</text></g>
+<g><circle class="node" cx="55" cy="125" r="18"/><circle class="node" cx="220" cy="65" r="18"/><circle class="node" cx="405" cy="125" r="18"/><circle class="node" cx="230" cy="195" r="18"/><circle class="node" cx="555" cy="130" r="18"/></g>
+<g class="nt"><text x="50" y="130">s</text><text x="215" y="70">a</text><text x="400" y="130">b</text><text x="225" y="200">c</text><text x="550" y="135">t</text></g>
+<text x="165" y="235" class="wt">Cycle a→b→c→a has weight 1−5+1=−3</text>
+</svg><div class="caption">Figure 13.1 — Each loop reduces cost by 3; then going to t gives arbitrarily small s→t walks.</div></div>
+<h3>Why no shortest path exists</h3>
+<p>If source s can reach a negative cycle C and C can reach v, loop around C k times before proceeding to v. Cost decreases by k|w(C)|, so there is no finite minimum.</p>
+<div class="box"><b>Bellman–Ford detection:</b> after V−1 passes, any still-relaxable edge reachable from s proves that some reachable negative cycle exists. To mark every affected vertex, collect improved vertices on pass V and graph-search forward from them.</div>
+<h3>Recover an actual cycle</h3>
+<ol><li>Record a vertex x improved on the Vth pass.</li><li>Follow parent pointers V times; this guarantees entering a cycle.</li><li>From that vertex, follow parents until it repeats; reverse orientation if presenting forward edges.</li></ol>
+<div class="box warn"><b>Reachability matters:</b> a negative cycle in an unreachable component must not make source-based Bellman–Ford report failure. Check d[u]≠∞ before using edge (u,v), especially in finite-integer code where “INF + negative” can overflow.</div>
+<h3>Real-life interpretation</h3>
+<p>A negative cycle may represent an arbitrage loop (money grows every round), a time/cost model contradiction, or inconsistent difference constraints—not a physically negative road length.</p>
+</section>
+
+<section class="page">
+<h2>14. Shortest paths in a DAG</h2>
+<div class="box"><span class="label">Why faster</span>A DAG has a topological order in which every edge goes forward. Process each vertex once in that order; no future edge can return to invalidate it. Negative edges are safe because a DAG has no cycle at all.</div>
+<pre class="algo"><b>DAG-SHORTEST-PATHS(G,w,s)</b>
+topologically sort vertices
+initialize d and parent; d[s] ← 0
+for each u in topological order:
+    if d[u] ≠ ∞:
+        for each edge (u,v): RELAX(u,v,w)
+return d,parent</pre>
+<div class="fig">
+<svg viewBox="0 0 620 220" width="100%" height="195">
+<defs><marker id="a5" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#607085"/></marker></defs>
+<g class="edge" marker-end="url(#a5)"><line x1="75" y1="110" x2="190" y2="55"/><line x1="75" y1="110" x2="190" y2="170"/><line x1="220" y1="55" x2="360" y2="55"/><line class="bad" x1="215" y1="155" x2="360" y2="70"/><line x1="220" y1="170" x2="500" y2="120"/><line x1="390" y1="60" x2="500" y2="110"/></g>
+<g class="wt"><text x="125" y="65">2</text><text x="125" y="160">6</text><text x="285" y="43">3</text><text x="290" y="115">−5</text><text x="355" y="167">2</text><text x="445" y="75">4</text></g>
+<g><circle class="node" cx="55" cy="110" r="18"/><circle class="node" cx="205" cy="50" r="18"/><circle class="node" cx="205" cy="170" r="18"/><circle class="node" cx="375" cy="55" r="18"/><circle class="node" cx="520" cy="115" r="18"/></g>
+<g class="nt"><text x="50" y="115">s</text><text x="200" y="55">a</text><text x="200" y="175">b</text><text x="370" y="60">c</text><text x="515" y="120">d</text></g>
+<text x="115" y="215" class="wt">Topological order s,a,b,c,d (or s,b,a,c,d)</text>
+</svg><div class="caption">Figure 14.1 — The negative edge b→c is harmless. Distances: s=0, a=2, b=6, c=1, d=5.</div></div>
+<h3>Complexity</h3>
+<p>Topological sort O(V+E) plus each edge relaxed once O(E): <b>Θ(V+E)</b>; space O(V) beyond adjacency lists.</p>
+<h3>Applications</h3>
+<ul><li>Critical-path/project scheduling (often use longest paths by negating or changing min to max).</li><li>Dependency networks, layered graphs, dynamic-programming state graphs.</li><li>Fast paths in acyclic routing/workflow models.</li></ul>
+<div class="box warn"><b>Trap:</b> “DAG shortest path handles negative cycles” is nonsense: DAGs contain no cycles. Also do not topologically sort a general directed graph and proceed; the order exists iff it is acyclic.</div>
+</section>
+
+<section class="page">
+<h2>15. Master SSSP comparison</h2>
+<table>
+<tr><th>Feature</th><th>Dijkstra</th><th>Bellman–Ford</th><th>DAG-SP</th></tr>
+<tr><td>Weight restriction</td><td>All reachable edges ≥0</td><td>Negative edges allowed</td><td>Any weights</td></tr>
+<tr><td>Negative cycle</td><td>Not supported</td><td>Detects reachable ones</td><td>Impossible</td></tr>
+<tr><td>Main strategy</td><td>Greedy finalization</td><td>Repeated global relaxation</td><td>Topological dynamic programming</td></tr>
+<tr><td>Main structure</td><td>Min-PQ + adjacency list</td><td>Edge list</td><td>Topological order + adjacency list</td></tr>
+<tr><td>Time</td><td>O(E lg V) binary heap; O(V²) array</td><td>O(VE)</td><td>Θ(V+E)</td></tr>
+<tr><td>Best use</td><td>Road/network cost without negative weights</td><td>Negative weights, cycle test, constraints</td><td>Acyclic dependency/state graph</td></tr>
+<tr><td>Main limitation</td><td>Negative edge breaks proof</td><td>Slower</td><td>Only DAGs</td></tr>
+</table>
+<h3>Decision flow</h3>
+<div class="fig">
+<svg viewBox="0 0 620 260" width="100%" height="235">
+<defs><marker id="a6" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#607085"/></marker></defs>
+<g fill="#eaf7f7" stroke="#16869a" stroke-width="2"><rect x="210" y="10" width="200" height="40" rx="8"/><rect x="55" y="100" width="150" height="45" rx="8"/><rect x="235" y="100" width="150" height="45" rx="8"/><rect x="420" y="100" width="150" height="45" rx="8"/><rect x="235" y="205" width="150" height="40" rx="8"/></g>
+<g class="edge" marker-end="url(#a6)"><line x1="310" y1="50" x2="130" y2="100"/><line x1="310" y1="50" x2="310" y2="100"/><line x1="310" y1="50" x2="495" y2="100"/><line x1="495" y1="145" x2="355" y2="205"/></g>
+<g class="wt"><text x="263" y="35">Is graph a DAG?</text><text x="85" y="126">Yes → DAG-SP</text><text x="260" y="126">No negative edge?</text><text x="445" y="126">Negative edge?</text><text x="258" y="230">Bellman–Ford</text><text x="200" y="78">yes</text><text x="320" y="78">no</text><text x="460" y="180">yes</text></g>
+<text x="248" y="170" class="wt">Yes → Dijkstra</text>
+</svg><div class="caption">Figure 15.1 — Choose by graph structure first, then by edge signs.</div></div>
+<h3>Relaxation correctness in one paragraph</h3>
+<p>Every finite d[v] is the weight of some discovered s→v path, so it cannot be below the true minimum. When predecessor u is already correct and (u,v) is the next edge on a shortest path, triangle inequality plus upper-bound squeeze d[v] to δ(s,v). Algorithms differ mainly in how they guarantee the right relaxations occur in a sufficient order.</p>
+</section>
+
+<section class="page">
+<h2>16. Complete complexity sheet</h2>
+<table>
+<tr><th>Algorithm</th><th>Time</th><th>Auxiliary space*</th><th>Key structure</th><th>Use when</th></tr>
+<tr><td>Kruskal</td><td>O(E lg V)</td><td>O(V) + edge sorting</td><td>Edge list, DSU</td><td>Sparse undirected; MSF</td></tr>
+<tr><td>Prim (array)</td><td>O(V²)</td><td>O(V)</td><td>Matrix, arrays</td><td>Dense undirected</td></tr>
+<tr><td>Prim (binary heap)</td><td>O(E lg V)</td><td>O(V)</td><td>Adjacency list, min-heap</td><td>Sparse undirected</td></tr>
+<tr><td>Prim (Fibonacci)</td><td>O(E+V lg V)</td><td>O(V)</td><td>Fibonacci heap</td><td>Theoretical bound</td></tr>
+<tr><td>Second MST (simple)</td><td>O(EV)</td><td>O(V)</td><td>MST + tree search</td><td>Small graph/exam method</td></tr>
+<tr><td>Second MST (LCA)</td><td>O(E lg V)</td><td>O(V lg V)</td><td>Binary lifting max query</td><td>Large graph</td></tr>
+<tr><td>Dijkstra (array)</td><td>O(V²)</td><td>O(V)</td><td>Matrix, arrays</td><td>Dense, nonnegative</td></tr>
+<tr><td>Dijkstra (binary heap)</td><td>O(E lg V)</td><td>O(V), or O(E) lazy PQ</td><td>Adjacency list, min-heap</td><td>Sparse, nonnegative</td></tr>
+<tr><td>Bellman–Ford</td><td>O(VE)</td><td>O(V)</td><td>Edge list</td><td>Negative edges/cycle detection</td></tr>
+<tr><td>DAG-SP</td><td>Θ(V+E)</td><td>O(V)</td><td>Topo order, adjacency</td><td>Directed acyclic graph</td></tr>
+</table>
+<p class="small muted">*Excludes storage of input graph unless stated. An adjacency list itself uses Θ(V+E); a matrix uses Θ(V²).</p>
+<h3>Proof map</h3>
+<table><tr><th>Claim</th><th>Proof tool</th><th>One-line invariant</th></tr>
+<tr><td>Kruskal correct</td><td>Cut property + exchange</td><td>Accepted forest A is contained in some MST.</td></tr>
+<tr><td>Prim correct</td><td>Cut property + exchange</td><td>Growing tree edges are contained in some MST.</td></tr>
+<tr><td>Dijkstra correct</td><td>First wrong extraction contradiction</td><td>Every settled vertex has d=δ.</td></tr>
+<tr><td>Bellman–Ford correct</td><td>Induction on number of path edges</td><td>After i passes, paths with ≤i edges are represented.</td></tr>
+<tr><td>DAG-SP correct</td><td>Induction in topological order</td><td>All incoming predecessors are processed before v.</td></tr>
+</table>
+<div class="box tip"><b>Mnemonic:</b> MST algorithms ask “which <b>edge</b> is safe?” SSSP algorithms ask “which <b>estimate</b> becomes exact?”</div>
+</section>
+
+<section class="page">
+<h2>17. Exam and viva preparation</h2>
+<h3>Frequently asked theory questions</h3>
+<ol>
+<li>State and prove the cut property using an exchange argument.</li>
+<li>Trace Kruskal, showing sorted edges and DSU components after each acceptance.</li>
+<li>Trace Prim, showing key and parent arrays after every extraction.</li>
+<li>Compare Prim and Kruskal for sparse and dense graphs.</li>
+<li>Find a second-best MST by one-edge exchange.</li>
+<li>Define relaxation and prove the path-relaxation property intuitively.</li>
+<li>Prove Dijkstra and identify exactly where nonnegativity is required.</li>
+<li>Give the smallest counterexample to Dijkstra with a negative edge.</li>
+<li>Explain why Bellman–Ford needs V−1 passes and a Vth test.</li>
+<li>Find/reconstruct a reachable negative cycle.</li>
+<li>Why can DAG shortest path allow negative weights?</li>
+</ol>
+<h3>Rapid viva: question → answer</h3>
+<table class="tight"><tr><th>Question</th><th>Strong one-line answer</th></tr>
+<tr><td>Can MST contain negative edges?</td><td>Yes; greedy cut logic remains valid and such edges are often selected.</td></tr>
+<tr><td>Does distinct weight imply unique MST?</td><td>Yes. The converse is false.</td></tr>
+<tr><td>Can Dijkstra handle a negative edge if no negative cycle?</td><td>No; a later negative edge can improve a finalized vertex.</td></tr>
+<tr><td>Can Bellman–Ford detect every negative cycle?</td><td>Only cycles reachable from its source, unless a super-source is added.</td></tr>
+<tr><td>Why V−1 edges in a tree?</td><td>Connected acyclic graphs have exactly V−1; adding one creates a cycle.</td></tr>
+<tr><td>Prim key vs Dijkstra distance?</td><td>Prim key is one crossing-edge weight; Dijkstra distance is total source-path weight.</td></tr>
+<tr><td>MST versus shortest-path tree?</td><td>They optimize different objectives and generally differ.</td></tr>
+<tr><td>What if graph is disconnected?</td><td>No spanning tree; Kruskal gives a minimum spanning forest.</td></tr></table>
+<h3>How to earn method marks in a dry run</h3>
+<ul><li>Write assumptions: directed/undirected, start/source, tie-breaking rule.</li><li>Show state, not only final answer: DSU sets; key/parent; d/parent; queue.</li><li>Circle accepted/finalized choices; cross rejected cycle edges or stale heap entries.</li><li>Finish with selected edges/path, total weight/distances, and complexity.</li></ul>
+</section>
+
+<section class="page">
+<h2>18. Common traps and memory anchors</h2>
+<div class="grid2">
+<div class="box warn"><span class="label">MST traps</span><ul><li>Forgetting “undirected, connected.”</li><li>Calling every globally smallest edge safe without naming a cut.</li><li>Using Prim’s accumulated path weight.</li><li>Stopping Kruskal after V−1 considered rather than accepted edges.</li><li>Claiming ties always mean multiple MSTs.</li></ul></div>
+<div class="box warn"><span class="label">SSSP traps</span><ul><li>Using Dijkstra on any reachable negative edge.</li><li>Relaxing from ∞ without a guard in finite arithmetic.</li><li>Confusing an edge count with a pass count.</li><li>Reporting unreachable negative cycles.</li><li>Forgetting to reverse parent chain.</li></ul></div>
+</div>
+<h3>Mnemonics</h3>
+<table><tr><th>Mnemonic</th><th>Meaning</th></tr>
+<tr><td><b>Kruskal: Sort–Check–Union</b></td><td>Sort edges; check representatives; union if distinct.</td></tr>
+<tr><td><b>Prim: Pull nearest branch</b></td><td>Pull outside vertex using cheapest edge into current tree.</td></tr>
+<tr><td><b>Dijkstra: Done means done</b></td><td>Extraction finalizes only because weights are nonnegative.</td></tr>
+<tr><td><b>Bellman–Ford: V−1 sweep, one more peep</b></td><td>Relax V−1 passes, then inspect once more for a negative cycle.</td></tr>
+<tr><td><b>DAG: order once, relax once</b></td><td>Topological processing makes one edge scan sufficient.</td></tr></table>
+<h3>Mini practice set</h3>
+<ol>
+<li>Prove or disprove: “The lightest edge of a connected graph belongs to every MST.” <span class="muted">(If unique globally lightest: yes; with ties, at least one MST contains a chosen light edge, but not necessarily every MST.)</span></li>
+<li>Can an MST exclude the second-lightest edge? <span class="muted">(Yes, e.g., it may close a cycle.)</span></li>
+<li>How do you find an MSF with Prim? <span class="muted">(Restart Prim at each unvisited component.)</span></li>
+<li>What does an unchanged Bellman–Ford pass prove? <span class="muted">(All reachable estimates are stable; stop early.)</span></li>
+<li>For an unweighted graph, best SSSP? <span class="muted">(BFS, Θ(V+E).)</span></li>
+</ol>
+<div class="box exam"><b>Final distinction:</b> A “visited” flag means different things. In Prim it means vertex already in the MST tree. In Dijkstra it means shortest distance finalized. In neither algorithm should it normally be set merely upon first discovery.</div>
+</section>
+
+<section class="page">
+<h2>19. CLRS SSSP foundations — complete chapter scope</h2>
+<h3>Four shortest-path problem variants</h3>
+<table><tr><th>Variant</th><th>Task</th><th>Reduction / remark</th></tr>
+<tr><td>Single source</td><td>From fixed s to every v</td><td>The focus of Chapter 24.</td></tr>
+<tr><td>Single destination</td><td>From every v to fixed t</td><td>Reverse every edge, then run SSSP from t.</td></tr>
+<tr><td>Single pair</td><td>From given u to given v</td><td>Run SSSP from u; known worst-case bounds are not asymptotically better in the general model.</td></tr>
+<tr><td>All pairs</td><td>For every ordered pair (u,v)</td><td>Could run SSSP V times; specialized algorithms are studied in CLRS Chapter 25.</td></tr></table>
+<div class="box tip"><b>Unweighted graph:</b> BFS is already an SSSP algorithm when every edge has unit weight; it runs in Θ(V+E).</div>
+
+<h3>Optimal substructure (Lemma 24.1)</h3>
+<div class="box proof"><b>Subpaths of shortest paths are shortest.</b> If p is a shortest u→v path, every subpath x→y within p is shortest between x and y. Otherwise replace that subpath by a cheaper one and obtain a cheaper u→v path—a contradiction.</div>
+<p>This is the structural reason greedy methods and dynamic programming can work. It does <em>not</em> say every combination of independently shortest subpaths is a valid simple path.</p>
+
+<h3>What cycles can occur in a shortest path?</h3>
+<table><tr><th>Cycle weight</th><th>Effect</th><th>Conclusion</th></tr>
+<tr><td>Positive</td><td>Removing it makes the path cheaper.</td><td>Cannot appear in a shortest path.</td></tr>
+<tr><td>Zero</td><td>Removing it preserves weight.</td><td>A shortest simple path still exists.</td></tr>
+<tr><td>Negative</td><td>Repeating it makes cost arbitrarily low.</td><td>No finite shortest path to vertices reachable beyond it.</td></tr></table>
+<p>Therefore, when no relevant negative cycle exists, we may choose a shortest path that is simple and uses at most <b>V−1 edges</b>. This fact drives Bellman–Ford’s pass count.</p>
+
+<h3>Infinity conventions and storage</h3>
+<ul><li>CLRS conceptually uses a+∞=∞ and min(∞,x)=x. In code, guard d[u]≠INF and avoid overflow.</li><li>Chapter 24 assumes weighted adjacency lists, giving Θ(V+E) graph space and O(1) weight access per traversed edge.</li><li>Bellman–Ford is often written with an edge list because every pass scans all edges.</li></ul>
+</section>
+
+<section class="page">
+<h2>20. Shortest-path trees and the predecessor subgraph</h2>
+<p>Algorithms must return not only distances but actual paths. Each non-source vertex v stores a predecessor π[v]. Following π backward should lead from v to s.</p>
+<div class="box"><b>Predecessor subgraph G<sub>π</sub>=(V<sub>π</sub>,E<sub>π</sub>):</b><br>
+V<sub>π</sub>={s}∪{v:π[v]≠NIL}; &nbsp;
+E<sub>π</sub>={(π[v],v):v∈V<sub>π</sub>−{s}}.</div>
+<h3>Formal shortest-path tree requirements</h3>
+<ol><li>Its vertex set is exactly the vertices reachable from s.</li><li>It is a directed tree rooted at s.</li><li>Its unique s→v tree path is a shortest s→v path in G for every reachable v.</li></ol>
+<div class="fig">
+<svg viewBox="0 0 620 230" width="100%" height="205">
+<defs><marker id="a7" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#607085"/></marker></defs>
+<g class="edge" marker-end="url(#a7)"><line class="chosen" x1="75" y1="115" x2="205" y2="55"/><line class="chosen" x1="75" y1="115" x2="205" y2="180"/><line class="chosen" x1="235" y1="55" x2="390" y2="65"/><line class="chosen" x1="235" y1="180" x2="390" y2="160"/><line class="dash" x1="235" y1="170" x2="390" y2="75"/><line class="dash" x1="420" y1="70" x2="420" y2="145"/></g>
+<g><circle class="node" cx="55" cy="115" r="19"/><circle class="node" cx="220" cy="50" r="19"/><circle class="node" cx="220" cy="180" r="19"/><circle class="node" cx="405" cy="65" r="19"/><circle class="node" cx="405" cy="160" r="19"/></g>
+<g class="nt"><text x="50" y="120">s</text><text x="215" y="55">a</text><text x="215" y="185">b</text><text x="400" y="70">c</text><text x="400" y="165">d</text></g>
+<text x="458" y="85" class="wt">Green predecessor edges</text><text x="458" y="110" class="wt">form one SPT.</text><text x="458" y="145" class="wt">Dashed equal-cost edges</text><text x="458" y="170" class="wt">may yield another SPT.</text>
+</svg><div class="caption">Figure 20.1 — Shortest paths and shortest-path trees need not be unique, even though all correct distance values agree.</div></div>
+<h3>PRINT-PATH and tie behavior</h3>
+<pre class="algo"><b>PRINT-PATH(s,v)</b>
+if v=s: print s
+else if parent[v]=NIL: print "no path"
+else: PRINT-PATH(s,parent[v]); print v</pre>
+<ul><li>A strict relaxation test (<code>&gt;</code>) keeps the first equal-cost predecessor; using <code>≥</code> may change parents and, with zero cycles, needs care.</li><li>During execution, parents may describe only provisional routes. They become an SPT when the distance-correctness and no-reachable-negative-cycle assumptions hold.</li><li>Unreachable vertices keep d=∞ and π=NIL and do not belong to V<sub>π</sub> (except s itself).</li></ul>
+<div class="box warn"><b>Shortest-path tree ≠ MST:</b> an SPT is directed outward from a source and preserves its distances. Its total edge weight need not be minimum.</div>
+</section>
+
+<section class="page">
+<h2>21. Difference constraints and shortest paths (CLRS 24.4)</h2>
+<div class="box"><span class="label">Why this section exists</span>Bellman–Ford can solve a useful special case of linear programming: inequalities comparing the difference of two unknowns.</div>
+<h3>From an inequality to an edge</h3>
+<div class="formula">x<sub>i</sub> − x<sub>j</sub> ≤ b<sub>k</sub> &nbsp; ⇔ &nbsp; x<sub>i</sub> ≤ x<sub>j</sub>+b<sub>k</sub> &nbsp; ⇒ &nbsp; edge v<sub>j</sub>→v<sub>i</sub> of weight b<sub>k</sub></div>
+<p>Build a <b>constraint graph</b> with one vertex v<sub>i</sub> per variable and one directed weighted edge per inequality. Add a new source v<sub>0</sub> with zero-weight edges v<sub>0</sub>→v<sub>i</sub> so every variable is reachable.</p>
+<div class="fig">
+<svg viewBox="0 0 620 235" width="100%" height="210">
+<defs><marker id="a8" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#607085"/></marker></defs>
+<g class="edge" marker-end="url(#a8)"><line x1="75" y1="115" x2="205" y2="55"/><line x1="75" y1="115" x2="205" y2="180"/><line x1="75" y1="115" x2="430" y2="115"/><line x1="235" y1="65" x2="400" y2="110"/><line x1="415" y1="135" x2="245" y2="180"/><line x1="220" y1="160" x2="220" y2="75"/></g>
+<g class="wt"><text x="130" y="75">0</text><text x="130" y="170">0</text><text x="250" y="105">0</text><text x="315" y="72">4</text><text x="325" y="170">−2</text><text x="235" y="120">3</text></g>
+<g><circle class="node" cx="55" cy="115" r="19"/><circle class="node" cx="220" cy="50" r="19"/><circle class="node" cx="220" cy="180" r="19"/><circle class="node" cx="430" cy="115" r="19"/></g>
+<g class="nt"><text x="45" y="120">v₀</text><text x="210" y="55">v₁</text><text x="210" y="185">v₂</text><text x="420" y="120">v₃</text></g>
+</svg><div class="caption">Figure 21.1 — The super-source ensures all constraint vertices are reachable; each inequality becomes one edge.</div></div>
+<h3>The theorem and proof intuition</h3>
+<div class="box proof"><b>If the constraint graph has no negative cycle, set x<sub>i</sub>=δ(v<sub>0</sub>,v<sub>i</sub>).</b> For every constraint edge v<sub>j</sub>→v<sub>i</sub> of weight b<sub>k</sub>, triangle inequality gives δ(0,i)≤δ(0,j)+b<sub>k</sub>, exactly x<sub>i</sub>−x<sub>j</sub>≤b<sub>k</sub>.</div>
+<p>If a negative cycle exists, summing its inequalities cancels all variables and yields 0≤a negative number—impossible. Thus Bellman–Ford either returns a feasible assignment or certifies infeasibility.</p>
+</section>
+
+<section class="page">
+<h2>22. Difference constraints — dry run, extensions, exam use</h2>
+<h3>Worked feasible system</h3>
+<table><tr><th>Constraint</th><th>Edge</th><th>With BF solution (x₁,x₂,x₃)=(0,−2,0)</th></tr>
+<tr><td>x₁−x₂≤3</td><td>v₂→v₁ (3)</td><td>0−(−2)=2≤3 ✓</td></tr>
+<tr><td>x₂−x₃≤−2</td><td>v₃→v₂ (−2)</td><td>−2−0=−2≤−2 ✓</td></tr>
+<tr><td>x₃−x₁≤4</td><td>v₁→v₃ (4)</td><td>0−0=0≤4 ✓</td></tr></table>
+<p>The super-source starts all distances at at most 0. Relaxing v₃→v₂ lowers x₂ to −2; the remaining inequalities are satisfied.</p>
+
+<h3>Infeasible in one glance</h3>
+<div class="grid2">
+<div class="box warn">x₁−x₂≤1<br>x₂−x₁≤−3</div>
+<div class="box warn">Edges v₂→v₁(1), v₁→v₂(−3)<br>Cycle weight = −2 ⇒ infeasible.</div>
+</div>
+<p>Algebra agrees: the first says x₁−x₂≤1, while the second says x₁−x₂≥3.</p>
+
+<h3>Useful facts and extensions</h3>
+<table><tr><th>Fact</th><th>Exam-ready explanation</th></tr>
+<tr><td>Translation invariance (Lemma 24.8)</td><td>If x is feasible, x+d·(1,1,…,1) is feasible because differences do not change.</td></tr>
+<tr><td>Complexity</td><td>With explicit v₀: O(n(m+n)). With the equivalent all-zero initialization and no v₀ edges: O(nm).</td></tr>
+<tr><td>Remove super-source</td><td>Initialize every d[v]=0 and relax only the m constraint edges; this is equivalent to zero edges from v₀.</td></tr>
+<tr><td>Equality</td><td>xᵢ=xⱼ+b becomes xᵢ−xⱼ≤b and xⱼ−xᵢ≤−b.</td></tr>
+<tr><td>Single-variable bound</td><td>Use a fixed x₀=0: xᵢ≤b becomes xᵢ−x₀≤b.</td></tr>
+<tr><td>Integer solutions</td><td>If all b values are integers and the system is feasible, BF distances are integers.</td></tr></table>
+<div class="box exam"><b>Maximum-mark construction:</b> write the rearrangement, draw each edge in the correct direction j→i, add v₀→vᵢ(0), run BF, then explicitly substitute the returned distances into every inequality.</div>
+</section>
+
+<section class="page">
+<h2>23. All shortest-path properties (CLRS 24.5)</h2>
+<table>
+<tr><th>Property</th><th>Precise statement</th><th>Why it matters</th></tr>
+<tr><td>Triangle inequality</td><td>δ(s,v)≤δ(s,u)+w(u,v) for every edge (u,v).</td><td>A shortest route to v is no worse than a shortest route to u followed by (u,v).</td></tr>
+<tr><td>Upper bound</td><td>Always d[v]≥δ(s,v); once equal, it never changes.</td><td>Relaxation stores weights of real discovered paths and only decreases them.</td></tr>
+<tr><td>No path</td><td>If v is unreachable, d[v]=δ(s,v)=∞ forever.</td><td>No relaxation chain from s can reach it.</td></tr>
+<tr><td>Post-relaxation</td><td>Immediately after RELAX(u,v), d[v]≤d[u]+w(u,v).</td><td>The tested edge constraint is satisfied at that instant.</td></tr>
+<tr><td>Convergence</td><td>If s→…→u→v is shortest and d[u]=δ(s,u), relaxing (u,v) makes d[v]=δ(s,v) forever.</td><td>Correctness propagates one edge.</td></tr>
+<tr><td>Path relaxation</td><td>Relax edges of a shortest path in path order; its endpoint becomes correct, even with other relaxations interspersed.</td><td>Core proof tool for BF and DAG-SP.</td></tr>
+<tr><td>Predecessor subgraph</td><td>When every d is correct and no reachable negative cycle exists, Gπ is an SPT rooted at s.</td><td>Distances plus parents truly represent paths.</td></tr>
+</table>
+<h3>Why parent pointers do not form a cycle</h3>
+<p>Initially only s is in G<sub>π</sub>. Suppose one relaxation first creates a predecessor cycle. Along old predecessor edges, each child’s estimate was set from its parent and parent estimates could only fall later; the newly relaxed edge gives one strict improvement. Summing the inequalities around the cycle forces the cycle’s total weight to be negative. That contradicts the assumption of no reachable negative cycle. Hence G<sub>π</sub> stays a rooted tree.</p>
+<div class="box proof"><b>Proof ladder:</b> triangle inequality → upper bound → convergence → path relaxation → algorithm distances → predecessor-subgraph property → actual shortest-path tree.</div>
+<h3>Subtle but examinable statements</h3>
+<ul><li>Relaxing an edge whose source estimate is ∞ makes no mathematical change; implementation still needs overflow protection.</li><li>“d[v]≤d[u]+w(u,v)” is guaranteed immediately after relaxing (u,v), but a later decrease of d[u] can make that edge eligible again.</li><li>Path-relaxation requires the chosen shortest-path edges to appear in order, not consecutively.</li><li>Correct distances may admit several valid parent trees because shortest paths can tie.</li></ul>
+</section>
+
+<section class="page">
+<h2>24. Completeness map and lower-priority enrichment</h2>
+<h3>CLRS Chapters 23–24 coverage map</h3>
+<table><tr><th>Book topic</th><th>Where covered here</th><th>Depth</th></tr>
+<tr><td>23.1 Growing an MST; generic method; safe/light edges; cut theorem</td><td>Sections 2–3</td><td>Full + proof</td></tr>
+<tr><td>23.2 Kruskal, disjoint sets, Prim, priority queues</td><td>Sections 4–7</td><td>Full + dry runs</td></tr>
+<tr><td>24 introduction: variants, subpaths, negative weights, cycles, path representation, relaxation</td><td>Sections 9, 13, 19–20</td><td>Full</td></tr>
+<tr><td>24.1 Bellman–Ford</td><td>Sections 12–13</td><td>Full + proof</td></tr>
+<tr><td>24.2 DAG shortest paths and PERT idea</td><td>Section 14</td><td>Full algorithm; application brief</td></tr>
+<tr><td>24.3 Dijkstra</td><td>Sections 10–11</td><td>Full + counterexample + proof</td></tr>
+<tr><td>24.4 Difference constraints</td><td>Sections 21–22</td><td>Complete core + extensions</td></tr>
+<tr><td>24.5 Formal shortest-path properties</td><td>Section 23</td><td>All named properties</td></tr></table>
+
+<h3>Lower-priority but useful chapter context</h3>
+<ul><li><b>PERT / critical paths:</b> in a DAG, longest paths model earliest completion under precedence constraints. Negate weights and use DAG-SP, or replace min by max; cycles would invalidate the schedule model.</li>
+<li><b>Reliability paths:</b> maximizing the product of edge reliabilities r∈[0,1] becomes minimizing Σ(−lg r), producing nonnegative weights suitable for Dijkstra.</li>
+<li><b>Arbitrage:</b> currency product &gt;1 around a cycle becomes a negative cycle after weight −lg(exchange rate); Bellman–Ford detects it.</li>
+<li><b>MST sensitivity:</b> decrease a non-tree edge e; add e to T and, if beneficial, remove the maximum-weight edge on its tree path. This is the same exchange behind second-best MST.</li>
+<li><b>MST verification:</b> for every non-tree edge (u,v), its weight must be at least the maximum edge on the T-path u→v; otherwise an improving exchange exists.</li>
+<li><b>Borůvka idea:</b> each component simultaneously chooses a cheapest outgoing edge, rapidly merging components. It is historically and theoretically important, but Kruskal/Prim are the standard exam algorithms here.</li></ul>
+<div class="box tip"><b>Boundary of “complete”:</b> This note includes every teaching concept and named section in CLRS 23–24. The book’s individual end-of-section exercises, research-history notes, and every specialized exercise variant are practice/enrichment rather than separate syllabus concepts.</div>
+</section>
+
+<!-- FIVE PAGE REVISION SHEET -->
+<section class="revision">
+<h2>Revision 1/5 — Definitions & properties</h2>
+<div class="grid2">
+<div>
+<h3>Graph core</h3>
+<ul><li>G=(V,E); weighted edge w(e).</li><li>Tree = connected + acyclic.</li><li>Forest = disjoint trees.</li><li>Spanning tree: all V, exactly V−1 edges.</li><li>Connected components: maximal connected subgraphs.</li></ul>
+<h3>MST</h3>
+<p>Spanning tree minimizing Σw(e). Undirected connected input; negative weights allowed. Disconnected → MSF.</p>
+<div class="box"><b>Cut:</b> partition (S,V−S). <b>Light:</b> minimum crossing edge. <b>Safe:</b> can join current A while A remains extendable to an MST.</div>
+<div class="box proof"><b>Cut property:</b> if cut respects A, a light crossing edge is safe. Proof: add it to an MST, delete the other cycle-crossing edge.</div>
+<div class="box"><b>Cycle property:</b> a strictly unique heaviest cycle edge is in no MST.</div>
+</div>
+<div>
+<h3>SSSP</h3>
+<p>δ(s,v)=minimum path weight; ∞ if unreachable; −∞ if a reachable negative cycle can lead to v.</p>
+<div class="algo">INIT: d[s]=0; all other d=∞; parent=NIL
+RELAX(u,v):
+ if d[u]≠∞ and d[v]&gt;d[u]+w(u,v):
+   d[v]=d[u]+w(u,v); parent[v]=u</div>
+<ul><li>d[v] is an upper bound on δ(s,v).</li><li>Triangle: δ(s,v)≤δ(s,u)+w(u,v).</li><li>Parents reconstruct path backward; reverse it.</li></ul>
+<h3>Do not confuse</h3>
+<table><tr><th>MST</th><th>SSSP</th></tr><tr><td>Min total tree weight</td><td>Min source→v path</td></tr><tr><td>No source</td><td>One source</td></tr><tr><td>Undirected</td><td>Usually directed</td></tr></table>
+</div></div>
+<div class="box tip"><b>Uniqueness:</b> all distinct weights ⇒ unique MST. Converse false. Equal weights may—but need not—create alternatives.</div>
+</section>
+
+<section class="revision">
+<h2>Revision 2/5 — MST algorithms</h2>
+<div class="grid2">
+<div>
+<h3>Kruskal: Sort–Check–Union</h3>
+<div class="algo">A=∅; MAKE-SET(v) for all v
+sort E ascending
+for (u,v) in E:
+ if FIND(u)≠FIND(v):
+   A += (u,v); UNION(u,v)
+stop after V−1 accepted</div>
+<ul><li>Forest grows; choice is global.</li><li>DSU: path compression + union by rank.</li><li>Time O(E lg V); DSU O(Eα(V)).</li><li>Correct: component cut + light edge.</li></ul>
+<h3>Second-best MST</h3>
+<div class="formula">w(T)+w(e)−max edge on T-path(u,v)</div>
+<p>Try every non-tree e. Simple O(EV); LCA/max lifting O(E lg V). Strict version ignores equal-weight alternative MSTs.</p>
+</div>
+<div>
+<h3>Prim: Pull nearest branch</h3>
+<div class="algo">key[*]=∞; parent[*]=NIL; key[r]=0
+Q=all vertices
+while Q:
+ u=EXTRACT-MIN(Q)
+ for v in Adj[u]:
+  if v∈Q and w(u,v)&lt;key[v]:
+   key[v]=w(u,v); parent[v]=u</div>
+<ul><li>One tree grows; minimum frontier edge.</li><li>Binary heap O(E lg V); array O(V²).</li><li>Correct: extracted/unextracted cut.</li></ul>
+<table><tr><th>Kruskal</th><th>Prim</th></tr><tr><td>Edges + DSU</td><td>Vertices + PQ</td></tr><tr><td>Sort required</td><td>No sort</td></tr><tr><td>Sparse/MSF</td><td>Dense with matrix</td></tr></table>
+</div></div>
+<div class="box warn"><b>Traps:</b> Prim key is a single edge, not root distance. Kruskal stops after V−1 <em>accepted</em>. Equal edges are legal. Root/tie choices may change the MST but not optimum weight.</div>
+</section>
+
+<section class="revision">
+<h2>Revision 3/5 — SSSP algorithms</h2>
+<div class="grid2">
+<div>
+<h3>Dijkstra (weights ≥0)</h3>
+<div class="algo">d[s]=0; PQ={(0,s)}
+while PQ:
+ (du,u)=extract-min
+ if du≠d[u]: continue
+ for (u,v):
+  if d[v]&gt;d[u]+w:
+   update d[v],parent[v]; push</div>
+<p>Greedy finalization. Binary heap O(E lg V); array O(V²). Proof: first wrong extracted vertex; nonnegative suffix cannot reduce path.</p>
+<div class="box warn">One reachable negative edge is enough to invalidate the proof—even with no negative cycle.</div>
+<h3>DAG-SP (any weights)</h3>
+<div class="algo">topologically sort
+for u in topo order:
+ for (u,v): RELAX(u,v)</div>
+<p>Θ(V+E). Negative weights okay; cycles impossible.</p>
+</div>
+<div>
+<h3>Bellman–Ford</h3>
+<div class="algo">initialize
+repeat V−1 times:
+ for every edge: RELAX
+ if no change: stop
+scan E once more:
+ relaxable reachable edge ⇒ neg cycle</div>
+<p>O(VE). After pass i, shortest paths of ≤i edges are captured. A simple shortest path uses ≤V−1 edges.</p>
+<h3>Negative cycle</h3>
+<ul><li>If reachable from s, Vth pass improves.</li><li>Vertices reachable onward have no finite shortest path.</li><li>Recover: improved x; follow parent V times; then loop to repeat.</li><li>Ignore cycles unreachable from s.</li></ul>
+<p><b>Difference constraints:</b> xᵢ−xⱼ≤b maps to edge j→i(b). BF distances give a feasible assignment; a negative cycle means infeasible.</p>
+</div></div>
+<table><tr><th></th><th>Dijkstra</th><th>Bellman–Ford</th><th>DAG</th></tr><tr><td>Negative edge</td><td>No</td><td>Yes</td><td>Yes</td></tr><tr><td>Time</td><td>E lg V</td><td>VE</td><td>V+E</td></tr><tr><td>Idea</td><td>Greedy</td><td>Repeated relax</td><td>Topo order</td></tr></table>
+</section>
+
+<section class="revision">
+<h2>Revision 4/5 — Proofs, formulas, complexities</h2>
+<div class="grid2">
+<div>
+<h3>Proof templates</h3>
+<div class="box proof"><b>MST exchange:</b> Current A lies in some MST T. Add chosen light e, creating a cycle; remove another cut-crossing f. Since w(e)≤w(f), new tree is no heavier and contains A+e.</div>
+<div class="box proof"><b>Dijkstra:</b> Suppose u first wrong extraction. On shortest path take first unsettled y and settled predecessor x. Relaxation makes d[y]=δ[y]. Nonnegative suffix gives δ[y]≤δ[u]. Min-Q and upper-bound squeeze d[u]=δ[u].</div>
+<div class="box proof"><b>Bellman–Ford:</b> Induct on path-edge count. If prefix to u is correct after i−1 passes, relaxing (u,v) during pass i makes v correct.</div>
+<div class="box proof"><b>DAG:</b> Topological order processes every predecessor before its outgoing edge; one pass realizes recurrence.</div>
+</div>
+<div>
+<h3>Complexity wall</h3>
+<table><tr><th>Algorithm</th><th>Time</th></tr><tr><td>Kruskal</td><td>E lg V</td></tr><tr><td>Prim heap / array</td><td>E lg V / V²</td></tr><tr><td>Second MST simple / LCA</td><td>EV / E lg V</td></tr><tr><td>Dijkstra heap / array</td><td>E lg V / V²</td></tr><tr><td>Bellman–Ford</td><td>VE</td></tr><tr><td>DAG-SP</td><td>V+E</td></tr></table>
+<h3>Formulas</h3>
+<ul><li>Tree edges = V−1.</li><li>w(T)=Σ<sub>e∈T</sub>w(e).</li><li>Relax if d[v]&gt;d[u]+w(u,v).</li><li>Second: w(T)+w(e)−maxPath.</li><li>Matrix space V²; list V+E.</li><li>lg E=Θ(lg V) for simple connected graphs in MST analysis.</li></ul>
+</div></div>
+</section>
+
+<section class="revision">
+<h2>Revision 5/5 — Last-door checklist</h2>
+<div class="grid2">
+<div>
+<h3>Before a dry run</h3>
+<ul class="check"><li>Directed or undirected?</li><li>Connected? DAG?</li><li>Any negative reachable edge/cycle?</li><li>Source/root and tie rule stated?</li><li>Correct representation?</li></ul>
+<h3>Show these columns</h3>
+<table><tr><th>Algorithm</th><th>State to show</th></tr><tr><td>Kruskal</td><td>edge, accept/reject, components</td></tr><tr><td>Prim</td><td>extract, key[], parent[]</td></tr><tr><td>Dijkstra</td><td>settle, d[], parent[], PQ</td></tr><tr><td>Bellman</td><td>pass, d[], changed?</td></tr></table>
+<h3>Answer skeleton</h3>
+<ol><li>Definition + assumptions</li><li>Intuition</li><li>Pseudocode</li><li>Dry run / figure</li><li>Correctness invariant</li><li>Complexity with structure</li><li>Limitation/trap</li></ol>
+</div>
+<div>
+<h3>Ten final traps</h3>
+<ol><li>MST ≠ shortest-path tree.</li><li>Safe ≠ globally lightest.</li><li>Tied weights do not force multiple MSTs.</li><li>Prim key ≠ accumulated distance.</li><li>Visited on extraction, not discovery.</li><li>Dijkstra forbids reachable negative edges.</li><li>Bellman scans all edges V−1 times.</li><li>Vth relaxation must be reachable.</li><li>DAG may have negative edges, never cycles.</li><li>Parent path is backward; reverse it.</li></ol>
+<div class="box exam"><b>30-second algorithm picker</b><br>Undirected connect-all → MST.<br>DAG → topological SP.<br>General + negative → Bellman–Ford.<br>General + nonnegative → Dijkstra.<br>Difference inequalities → constraint graph + BF.</div>
+<div class="box tip"><b>Memory line:</b><br>Kruskal sorts components together.<br>Prim grows one cheap branch.<br>Dijkstra finalizes cheap paths.<br>Bellman keeps correcting.<br>DAG obeys the order.</div>
+</div></div>
+<h3>Final self-test</h3>
+<p>Can you state the cut property, write all four pseudocodes, explain V−1 in two different contexts (tree edges and Bellman passes), produce a negative-edge Dijkstra counterexample, and derive each complexity? If yes, walk in calmly.</p>
+</section>
+</body>
+</html>
